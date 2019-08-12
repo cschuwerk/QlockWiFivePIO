@@ -98,6 +98,7 @@ uint8_t randomHour = 0;
 uint8_t randomMinute = 0;
 uint8_t testColumn = 0;
 uint8_t brightness = settings.getBrightness();
+String effect = "";
 
 // Weather conditions
 String outdoorTitle = "";
@@ -623,6 +624,7 @@ void loop()
 			case EXT_MODE_YEARSET:
 			case EXT_MODE_NIGHTOFF:
 			case EXT_MODE_DAYON:
+      case EXT_MODE_EFFECT:
 				screenBufferNeedsUpdate = true;
 			break;
 				default:
@@ -749,6 +751,32 @@ if(transitionActive) {
 			}
 			break;
 
+    case EXT_MODE_EFFECT:
+      
+      if(effect == "candle") {
+        Effects::showCandle(COLOR_YELLOW);
+        Effects::showCandle(COLOR_YELLOW);
+      }
+      else if (effect == "firework") {
+        Effects::showFireWork(5, COLOR_RED);
+        Effects::showFireWork(3, COLOR_GREEN);
+        Effects::showFireWork(6, COLOR_BLUE);
+        Effects::showFireWork(4, COLOR_MAGENTA);
+        Effects::showFireWork(3, COLOR_ORANGE);
+        Effects::showFireWork(5, COLOR_CYAN);
+      }
+      else if (effect == "heart") {
+        Effects::showHeart(COLOR_RED, 4);
+      }
+      else {
+        Effects::showTickerString(effect.c_str(), 5, COLOR_WHITE);
+      }
+      
+      
+      renderer.setTime(hour(), minute(), settings.getLanguage(), matrix);
+      renderer.setCorners(minute(), matrix);
+      mode = STD_MODE_TIME;
+      break;
 
     // **** Mode AM/PM ******
 		case STD_MODE_AMPM:
@@ -2398,6 +2426,7 @@ void setupWebServer()
 	esp8266WebServer.on("/reset", handleReset);
 	esp8266WebServer.on("/factoryReset", handleFactoryReset);
 	esp8266WebServer.on("/wifiReset", handleWiFiReset);
+  esp8266WebServer.on("/effect", handleShowEffect);
 	esp8266WebServer.begin();
 }
 
@@ -3148,4 +3177,16 @@ void handleWiFiReset()
 	esp8266WebServer.send(200, "text/plain", "OK.");
 	WiFi.disconnect(true);
 	ESP.restart();
+}
+
+
+void handleShowEffect()
+{
+  mode = EXT_MODE_EFFECT;
+  effect = esp8266WebServer.arg("name");
+  esp8266WebServer.send(200, "text/plain", "OK.");
+
+#ifdef DEBUG
+  Serial.println("Web-Event set: " + effect);
+#endif
 }

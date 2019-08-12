@@ -73,6 +73,7 @@ public:
 
 	static void showFireWork(byte posX, eColor color);
 	static void showHeart(eColor color);
+  static void showHeart(eColor color, unsigned int repetitions);
 	static void showCandle(eColor color);
 	static void showBJ(eColor color);
 	static void showBitmap(byte bitmapIdx, byte duration, eColor color);
@@ -284,5 +285,3 @@ const uint16_t bitmaps[][11] = {
 };
 
 #endif //EFFECTS_H
-
-

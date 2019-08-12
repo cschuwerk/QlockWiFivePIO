@@ -123,6 +123,12 @@ void Effects::showHeart(eColor color) {
 	writeToBuffer(matrix, 48, color);
 }
 
+void Effects::showHeart(eColor color, unsigned int repetitions) {
+  for(int i=0; i<repetitions; ++i) {
+    Effects::showHeart(color);
+  }
+}
+
 /**
  Feuerwerk-Effekt
  */
@@ -215,4 +221,3 @@ void Effects::writeToBuffer(uint16_t aMatrix[], unsigned int aDuration, eColor c
 	ledDriver.setScreenBuffer(aMatrix);
 	delay(aDuration * RGB_SPEED_CORRECTION);
 }
-

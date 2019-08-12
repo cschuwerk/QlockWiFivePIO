@@ -58,7 +58,8 @@ typedef enum eMode : uint8_t
 	EXT_MODE_DAYON,
 	EXT_MODE_TITLE_TEST,
 	EXT_MODE_TEST,
-	EXT_MODE_COUNT
+	EXT_MODE_COUNT,
+  EXT_MODE_EFFECT
 } Mode;
 
 // Overload the ControlType++ operator.
