@@ -2153,47 +2153,33 @@ void getOutdoorConditions(String location) {
 #endif
 	location.replace(" ", "%20");
 	location.replace(",", "%2C");
-	char server[] = "query.yahooapis.com";
+  char server[] = "www.metaweather.com";
 	WiFiClient wifiClient;
 	HttpClient client = HttpClient(wifiClient, server, 80);
-	String sqlQuery =
-			"select%20atmosphere.humidity%2C%20item.title%2C%20item.condition.temp%2C%20item.condition.code%20";
-	sqlQuery += "from%20weather.forecast%20where%20woeid%20in%20";
-	sqlQuery += "(select%20woeid%20from%20geo.places(1)%20where%20text=%22"
-			+ location + "%22)%20";
-	sqlQuery += "and%20u=%27c%27";
-	client.get(
-			"query.yahooapis.com/v1/public/yql?q=" + sqlQuery + "&format=json");
+
+	client.get("www.metaweather.com/api/location/" + location + "/");
 	uint16_t statusCode = client.responseStatusCode();
+	
 	if (statusCode == 200) {
 		String response = client.responseBody();
 		response = response.substring(response.indexOf('{'),
 				response.lastIndexOf('}') + 1);
+
 #ifdef DEBUG
 		Serial.printf("Status: %u\r\n", statusCode);
 		Serial.printf("Response is %u bytes.\r\n", response.length());
 		Serial.println(response);
 		Serial.println("Parsing JSON.");
 #endif
+
 		//DynamicJsonBuffer jsonBuffer;
 		StaticJsonBuffer<512> jsonBuffer;
 		JsonObject &responseJson = jsonBuffer.parseObject(response);
-		if (responseJson.success()
-				&& responseJson["query"]["count"].as<int8_t>()) {
-			outdoorTitle =
-					responseJson["query"]["results"]["channel"]["item"]["title"].as<
-							String>();
-			outdoorTitle = outdoorTitle.substring(0,
-					outdoorTitle.indexOf(" at "));
-			outdoorTemperature =
-					responseJson["query"]["results"]["channel"]["item"]["condition"]["temp"].as<
-							int8_t>();
-			outdoorHumidity =
-					responseJson["query"]["results"]["channel"]["atmosphere"]["humidity"].as<
-							uint8_t>();
-			outdoorCode =
-					responseJson["query"]["results"]["channel"]["item"]["condition"]["code"].as<
-							uint8_t>();
+		if (responseJson.success()) {
+			outdoorTitle = responseJson["consolidated_weather"][0]["weather_state_name"].as<String>();
+			outdoorTemperature = responseJson["consolidated_weather"][0]["the_temp"].as<int8_t>();
+			outdoorHumidity = responseJson["consolidated_weather"][0]["humidity"].as<uint8_t>();
+			outdoorCode = 0;
 #ifdef DEBUG
 			Serial.println(outdoorTitle);
 			Serial.printf("Temperature (Yahoo): %dC\r\n", outdoorTemperature);
