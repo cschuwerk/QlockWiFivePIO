@@ -21,12 +21,15 @@ public:
 
 	void setLayout(eLayout layout);
 	void setScreenColor(uint32_t color, bool update = false);
+ void setScreenColor(uint32_t color[10][11], bool update = false); 
+  void setScreenColor(uint32_t color[10][11], uint32_t cornerColor, bool update = false); 
 	void setBrightness(uint8_t brightness, bool update = false);
 	void setScreenBuffer(uint16_t screenBuffer[]);
 	void updateScreen();
 	void writeScreenBuffer(uint8_t scaleFactor = 100);
 	void writeScreenBuffer(uint16_t screenBuffer[], uint8_t scaleFactor = 100);
 	void writeScreenBuffer(uint16_t screenBuffer[], uint32_t color);
+  void writeScreenBuffer(uint16_t screenBuffer[], uint32_t scaledColor[10][11], uint32_t scaledCornerColor);
 
 	void clearStrip();
 	void showStrip();
@@ -40,7 +43,8 @@ private:
 	const layout_t* m_pLayout;
 	uint16_t m_screenBuffer[10];
 	uint8_t m_brightness;
-	uint32_t m_color;
+	uint32_t m_corner_color;
+  uint32_t m_pixel_color[10][11];
 	uint8_t m_wheelPos;
 protected:
 	uint16_t m_numLeds;

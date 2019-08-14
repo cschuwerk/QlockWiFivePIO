@@ -9,7 +9,8 @@ LedDriverBase::LedDriverBase(eLayout layout) {
 	m_brightness = 0xFF / 2;
 	memset(m_screenBuffer, 0, sizeof(m_screenBuffer));
 	m_wheelPos = 0;
-	m_color = 0xFFFFFF;
+	//m_color = 0xFFFFFF;
+  setScreenColor(255);
 }
 
 void LedDriverBase::setLayout(eLayout layout) {
@@ -24,10 +25,37 @@ void LedDriverBase::setBrightness(uint8_t brightness, bool update) {
 }
 
 void LedDriverBase::setScreenColor(uint32_t color, bool update) {
-	m_color = color;
+	
+	m_corner_color = color;
+  
+  for(int x=0; x<11; ++x) {
+    for(int y=0; y<10;++y) {
+      m_pixel_color[y][x] = color;
+    }
+  }
+  
 	if (update) {
 		updateScreen();
 	}
+}
+
+void LedDriverBase::setScreenColor(uint32_t color[10][11], bool update) {
+    
+  for(int x=0; x<11; ++x) {
+    for(int y=0; y<10;++y) {
+      m_pixel_color[y][x] = color[y][x];
+    }
+  }
+  
+  if (update) {
+    updateScreen();
+  }
+}
+
+void LedDriverBase::setScreenColor(uint32_t color[10][11], uint32_t cornerColor, bool update) {
+  
+  m_corner_color = cornerColor; 
+  setScreenColor(color, update);
 }
 
 void LedDriverBase::setScreenBuffer(uint16_t screenBuffer[]) {
@@ -41,7 +69,32 @@ void LedDriverBase::updateScreen() {
 	show();
 }
 
+void LedDriverBase::writeScreenBuffer(uint16_t screenBuffer[], uint32_t scaledColor[10][11], uint32_t scaledCornerColor) {
+  for (uint8_t y = 0; y <= 9; y++) {
+    for (uint8_t x = 0; x <= 10; x++) {
+      if (bitRead(screenBuffer[y], 15 - x)){
+        for(uint8_t i = 0; i < m_pLayout->ledsPerLetter; i++){
+          setPixel(m_pLayout->matrix[y][x] + i, scaledColor[y][x]);
+        }
+      }
+    }
+  }
+  for (uint8_t y = 0; y < 4; y++) {
+    if (bitRead(screenBuffer[y], 4)){
+      for(uint8_t i = 0; i < m_pLayout->ledsPerCorner; i++){
+        setPixel(m_pLayout->corners[y] + i, scaledCornerColor);
+      }
+    }
+  }
+  if (bitRead(screenBuffer[4], 4)){
+    for(uint8_t i = 0; i < m_pLayout->ledsPerAlarm; i++){
+      setPixel(m_pLayout->alarm + i, scaledCornerColor);
+    }
+  }
+}
+
 void LedDriverBase::writeScreenBuffer(uint16_t screenBuffer[], uint32_t scaledColor) {
+		
 	for (uint8_t y = 0; y <= 9; y++) {
 		for (uint8_t x = 0; x <= 10; x++) {
 			if (bitRead(screenBuffer[y], 15 - x)){
@@ -66,13 +119,22 @@ void LedDriverBase::writeScreenBuffer(uint16_t screenBuffer[], uint32_t scaledCo
 }
 
 void LedDriverBase::writeScreenBuffer(uint16_t screenBuffer[], uint8_t scaleFactor) {
-	uint32_t scaledColor = getScaledColor(m_color, (uint16_t) m_brightness * scaleFactor / 100);
-	writeScreenBuffer(screenBuffer, scaledColor);
+	
+	uint32_t scaledPixelColor[10][11];
+  for(int x=0; x<11; ++x) {
+    for(int y=0; y<10;++y) {
+      scaledPixelColor[y][x] = getScaledColor(m_pixel_color[y][x], (uint16_t) m_brightness * scaleFactor / 100);
+    }
+  }
+
+  uint32_t scaledCornerColor = getScaledColor(m_corner_color, (uint16_t) m_brightness * scaleFactor / 100);
+  
+	writeScreenBuffer(screenBuffer, scaledPixelColor, scaledCornerColor);
 }
 
 void LedDriverBase::writeScreenBuffer(uint8_t scaleFactor) {
-	uint32_t scaledColor = getScaledColor(m_color, (uint16_t) m_brightness * scaleFactor / 100);
-	writeScreenBuffer(m_screenBuffer, scaledColor);
+	//uint32_t scaledColor = getScaledColor(m_color, (uint16_t) m_brightness * scaleFactor / 100);
+	writeScreenBuffer(m_screenBuffer, scaleFactor);
 }
 
 uint32_t LedDriverBase::getColor(uint8_t r, uint8_t g, uint8_t b) {
@@ -88,7 +150,7 @@ uint32_t LedDriverBase::getScaledColor(uint32_t color, uint8_t brightness) {
 
 void LedDriverBase::updateColorWheel(bool update) {
 	m_wheelPos += 2;
-	m_color = wheel(m_wheelPos);
+	m_corner_color = wheel(m_wheelPos);
 
 	if (update) {
 		updateScreen();

@@ -162,6 +162,20 @@ void Effects::showFireWork(byte posX, eColor color) {
  */
 void Effects::showCandle(eColor color) {
 	uint16_t matrix[16];
+  uint32_t cBase = getDefaultColor(color);
+  int32_t  cFlame = getDefaultColor(COLOR_YELLOW);
+  uint32_t pixelColor[][11] = {
+      {cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame},
+      {cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame},
+      {cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame},
+      {cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame},
+      {cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame},
+      {cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame},
+      {cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase},
+      {cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase},
+      {cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase},
+      {cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase}
+    };
 	for (byte k = 0; k < 5; k++) {
 		for (int j = -4; j < 4; j++) {
 			renderer.clearScreenBuffer(matrix);
@@ -171,7 +185,7 @@ void Effects::showCandle(eColor color) {
 			for (byte i = 0; i < 5; i++) {
 				matrix[i] |= (effectMasksCandle[4 - abs(j % 4)][i] << 5);
 			}
-			writeToBuffer(matrix, 10, color);
+			writeToBuffer(matrix, 10, pixelColor);
 		}
 	}
 }
@@ -220,4 +234,11 @@ void Effects::writeToBuffer(uint16_t aMatrix[], unsigned int aDuration, eColor c
 	ledDriver.setScreenColor(getDefaultColor(color));
 	ledDriver.setScreenBuffer(aMatrix);
 	delay(aDuration * RGB_SPEED_CORRECTION);
+}
+
+void Effects::writeToBuffer(uint16_t aMatrix[], unsigned int aDuration, uint32_t color[10][11]) {
+  ledDriver.setBrightness(settings.getBrightness());
+  ledDriver.setScreenColor(color);
+  ledDriver.setScreenBuffer(aMatrix);
+  delay(aDuration * RGB_SPEED_CORRECTION);
 }

@@ -79,6 +79,8 @@ public:
 	static void showBitmap(byte bitmapIdx, byte duration, eColor color);
 	static void showAnimatedBitmap(byte animatedBitmap, eColor color);
 	static void writeToBuffer(uint16_t aMatrix[], unsigned int aDuration, eColor color);
+  static void writeToBuffer(uint16_t aMatrix[], unsigned int aDuration, uint32_t color[10][11]);
+
 };
 
 const uint16_t effectMasksHeart[][10] = {

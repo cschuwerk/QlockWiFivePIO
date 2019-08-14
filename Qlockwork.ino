@@ -498,7 +498,7 @@ void loop()
 			// Get weather from Yahoo.
 			if (WiFi.status() == WL_CONNECTED) {
 				settings.getLocation(location, sizeof(location));
-				getOutdoorConditions(String(location));
+				//getOutdoorConditions(String(location));
 			}
 		}
 	}
@@ -754,8 +754,8 @@ if(transitionActive) {
     case EXT_MODE_EFFECT:
       
       if(effect == "candle") {
-        Effects::showCandle(COLOR_YELLOW);
-        Effects::showCandle(COLOR_YELLOW);
+        Effects::showCandle(COLOR_RED_25);
+        Effects::showCandle(COLOR_RED_25);
       }
       else if (effect == "firework") {
         Effects::showFireWork(5, COLOR_RED);
