@@ -98,6 +98,47 @@ void Effects::showIntro(eColor color) {
 /**
  Pulsierender Herz-Effekt
  */
+void Effects::showHeartBig(eColor color) {
+	uint16_t matrix[16];
+	for (byte y = 0; y < 3; y++) {
+		renderer.clearScreenBuffer(matrix);
+		for(byte i=0; i<4; i++) {
+			for (byte j = 0; j < 8; j++) {
+				matrix[1 + j] |= (effectMasksHeart[i][j] << 5);
+			}
+			unsigned int duration = (i==3) ? 50 : 12;
+			writeToBuffer(matrix, duration, color);
+		}
+		renderer.clearScreenBuffer(matrix);
+		for (byte j = 0; j < 8; j++) {
+				matrix[1 + j] |= (effectMasksHeart[3][j] << 5);
+		}
+		writeToBuffer(matrix, 60, color);
+		for (byte j = 0; j < 8; j++) {
+				matrix[1 + j] |= (effectMasksHeart[2][j] << 5);
+		}
+		writeToBuffer(matrix, 100, color);
+		
+		/* for (byte i = 0; i < 2; i++) {
+			renderer.clearScreenBuffer(matrix);
+			for (byte z = 2; z < 4; z++) {
+				for (byte j = 0; j < 8; j++) {
+					matrix[1 + j] |= (effectMasksHeart[z][j] << 5);
+				}
+				if(z==2) {
+					writeToBuffer(matrix, 36, color); }
+				else {
+					writeToBuffer(matrix, 12, color); }				
+			}
+		}*/
+	}
+	renderer.clearScreenBuffer(matrix);
+	for (byte j = 0; j < 8; j++) {
+		matrix[1 + j] |= (effectMasksHeart[0][j] << 5);
+	}
+	writeToBuffer(matrix, 48, color);
+}
+
 void Effects::showHeart(eColor color) {
 	uint16_t matrix[16];
 	for (byte y = 0; y < 3; y++) {
@@ -124,7 +165,7 @@ void Effects::showHeart(eColor color) {
 }
 
 void Effects::showHeart(eColor color, unsigned int repetitions) {
-  for(int i=0; i<repetitions; ++i) {
+  for(unsigned int i=0; i<repetitions; ++i) {
     Effects::showHeart(color);
   }
 }
@@ -162,9 +203,9 @@ void Effects::showFireWork(byte posX, eColor color) {
  */
 void Effects::showCandle(eColor color) {
 	uint16_t matrix[16];
-  uint32_t cBase = getDefaultColor(color);
-  uint32_t  cFlame = getDefaultColor(COLOR_YELLOW);
-  uint32_t pixelColor[][11] = {
+  	uint32_t cBase = getDefaultColor(color);
+  	uint32_t  cFlame = getDefaultColor(COLOR_YELLOW);
+  	uint32_t pixelColor[][11] = {
       {cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame},
       {cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame},
       {cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame},
@@ -184,6 +225,41 @@ void Effects::showCandle(eColor color) {
 			}
 			for (byte i = 0; i < 5; i++) {
 				matrix[i] |= (effectMasksCandle[4 - abs(j % 4)][i] << 5);
+			}
+			writeToBuffer(matrix, 10, pixelColor);
+		}
+	}
+}
+
+void Effects::showCoffee(eColor color, unsigned int repetitions) {
+	uint16_t matrix[16];
+  	uint32_t cBase = getDefaultColor(color);
+  	uint32_t  cSteam = getDefaultColor(COLOR_WHITE);
+	uint32_t  cCoffee = getDefaultColor(COLOR_BROWN);
+  	uint32_t pixelColor[][11] = {
+      {cSteam,cSteam,cSteam,cSteam,cSteam,cSteam,cSteam,cSteam,cSteam,cSteam,cSteam},
+      {cSteam,cSteam,cSteam,cSteam,cSteam,cSteam,cSteam,cSteam,cSteam,cSteam,cSteam},
+      {cSteam,cSteam,cSteam,cSteam,cSteam,cSteam,cSteam,cSteam,cSteam,cSteam,cSteam},
+      {cSteam,cSteam,cSteam,cSteam,cSteam,cSteam,cSteam,cSteam,cSteam,cSteam,cSteam},
+      {cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase},
+      {cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase},
+      {cBase, cCoffee, cCoffee, cCoffee, cCoffee, cCoffee, cCoffee, cCoffee, cBase, cBase, cBase},
+      {cBase, cBase, cCoffee, cCoffee, cCoffee, cCoffee, cCoffee, cBase, cBase, cBase, cBase},
+      {cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase},
+      {cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase, cBase}
+    };
+	for (byte k = 0; k < repetitions; k++) {
+		
+		for (int j = 1; j < 10; j++) {
+
+			renderer.clearScreenBuffer(matrix);
+			// cup
+			for (byte i = 4; i < 10; i++) {
+				matrix[i] |= (effectMasksCoffee[0][i] << 5);
+			}
+			//steam
+			for (byte i = 0; i < 10; i++) {
+				matrix[i] |= (effectMasksCoffee[j][i] << 5);
 			}
 			writeToBuffer(matrix, 10, pixelColor);
 		}

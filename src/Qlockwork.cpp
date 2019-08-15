@@ -479,13 +479,13 @@ void loop()
 		DEBUG_PRINTLN("Free RAM: " + String(system_get_free_heap_size()));
 		SYSLOG("Free RAM: " + String(system_get_free_heap_size()));
 
-#if defined(UPDATE_INFO_STABLE) || defined(UPDATE_INFO_UNSTABLE)
+		#if defined(UPDATE_INFO_STABLE) || defined(UPDATE_INFO_UNSTABLE)
 		// Get updateinfo once a day at a random hour.
 		if (hour() == randomHour)
 		{
 			if (WiFi.status() == WL_CONNECTED) getUpdateInfo();
 		}
-#endif
+		#endif
 
 		// Change color.
 		if (settings.getColorChange() == COLORCHANGE_HOUR)
@@ -519,14 +519,15 @@ void loop()
 		lastMinute = minute();
 		screenBufferNeedsUpdate = true;
 
-#if defined(RTC_BACKUP) || defined(SENSOR_DHT22)
+		#if defined(RTC_BACKUP) || defined(SENSOR_DHT22)
 		// Update room conditions.
 		getRoomConditions();
-#endif
+		#endif
 
-#ifdef DEBUG
-		debug.debugTime("Time (ESP):", now(), SHOW_DATE);
-#endif
+		#ifdef DEBUG
+			debug.debugTime("Time (ESP):", now(), SHOW_DATE);
+		#endif
+
 		if ((settings.getTransition() == TRANSITION_FADE) && (mode == STD_MODE_TIME)) {
 			startTransition = true;
 		}
@@ -574,7 +575,7 @@ void loop()
 			testColumn++;
 		}
 
-#ifdef PIN_LED
+		#ifdef PIN_LED
 		// Flash ESP LED.
 		if (digitalRead(PIN_LED) == LOW)
 		{
@@ -584,9 +585,9 @@ void loop()
 		{
 			digitalWrite(PIN_LED, LOW);
 		}
-#endif
+		#endif
 
-#ifdef BUZZER
+		#ifdef BUZZER
 		// Switch on alarm for alarm1.
 		if (settings.getAlarm1() && (hour() == hour(settings.getAlarmTime1())) && (minute() == minute(settings.getAlarmTime1())) && (second() == 0) && bitRead(settings.getAlarm1Weekdays(), weekday()))
 		{
@@ -631,7 +632,7 @@ void loop()
 		{
 			digitalWrite(PIN_BUZZER, LOW);
 		}
-#endif
+		#endif
 
 		// Show temperatures.
 		if (settings.getShowTemp() && (mode == STD_MODE_TIME))
@@ -654,17 +655,17 @@ void loop()
 	if ((lastMillis2Hz + MILLIS_2_HZ) < millis()){
 		lastMillis2Hz = millis();
 		switch (mode) {
-#ifdef PIN_LDR
+			#ifdef PIN_LDR
 			case EXT_MODE_LDR:
-#endif
+			#endif
 			case EXT_MODE_EVT:
-#ifdef BUZZER
+			#ifdef BUZZER
 			case STD_MODE_SET_TIMER:
 			case STD_MODE_ALARM_1:
 			case STD_MODE_SET_ALARM_1:
 			case STD_MODE_ALARM_2:
 			case STD_MODE_SET_ALARM_2:
-#endif
+			#endif
 			case EXT_MODE_COLOR:
 			case EXT_MODE_COLORCHANGE:
 			case EXT_MODE_MOOD_RATE:
@@ -679,7 +680,7 @@ void loop()
 			case EXT_MODE_YEARSET:
 			case EXT_MODE_NIGHTOFF:
 			case EXT_MODE_DAYON:
-      case EXT_MODE_EFFECT:
+      		case EXT_MODE_EFFECT:
 				screenBufferNeedsUpdate = true;
 			break;
 				default:
@@ -730,10 +731,10 @@ if(transitionActive) {
 	esp8266WebServer.handleClient();
 	ArduinoOTA.handle();
 
-#ifdef PIN_LDR
+	#ifdef PIN_LDR
 	// Set brigthness from LDR.
 	setBrightnessFromLdr();
-#endif
+	#endif
 
 	// Render a new screenbuffer if needed.
 	if (screenBufferNeedsUpdate)
@@ -750,16 +751,17 @@ if(transitionActive) {
 
     // Clemens: Enable alarm symbol to show Wifi connectivity
     if (WiFi.status() == WL_CONNECTED) {
-       renderer.setAlarmLed(matrix); }
+       renderer.setAlarmLed(matrix); 
+	}
     else {
         renderer.deactivateAlarmLed(matrix);
-      }
+    }
 
 
 		// Render a new screenbuffer.
 		switch (mode)
 		{
-    // **** Mode Time ******
+    	// **** Mode Time ******
 		case STD_MODE_TIME:
 			for (byte evtID = 0; evtID < NUM_EVTS; evtID++) {
 				if (settings.getEventEnabled(evtID) && (day() == day(settings.getEventDate(evtID))) && (month() == month(settings.getEventDate(evtID)))) {
@@ -794,12 +796,12 @@ if(transitionActive) {
      
 			renderer.setTime(hour(), minute(), settings.getLanguage(), matrix);
 			renderer.setCorners(minute(), matrix);
-#ifdef BUZZER
+			#ifdef BUZZER
 			if (settings.getAlarm1() || settings.getAlarm2() || timerSet)
 			{
 				renderer.setAlarmLed(matrix);
 			}
-#endif
+			#endif
 			if (!settings.getItIs() && (minute() % 30))
 			{
 				renderer.clearEntryWords(settings.getLanguage(), matrix);
@@ -821,10 +823,31 @@ if(transitionActive) {
         Effects::showFireWork(5, COLOR_CYAN);
       }
       else if (effect == "heart") {
-        Effects::showHeart(COLOR_RED, 4);
+        Effects::showHeartBig(COLOR_RED);
+		Effects::showHeartBig(COLOR_RED);
+		Effects::showHeartBig(COLOR_RED);
+		Effects::showHeartBig(COLOR_RED);
       }
-      else if (effect == "smilie") {
-        Effects::showHeart(COLOR_RED, 4);
+	  else if (effect == "coffee") {
+        Effects::showCoffee(COLOR_WHITE, 10);
+      }
+      else if (effect == "smile") {
+		for(int n=0; n<6; ++n) {
+        	Effects::showAnimatedBitmap(Effects::ANI_BITMAP_CHRISTTREE, (eColor) COLOR_YELLOW);
+		}
+      }
+	  else if (effect == "christmas_tree") {
+		for(int n=0; n<6; ++n) {
+        	Effects::showAnimatedBitmap(Effects::ANI_BITMAP_CHRISTTREE, (eColor) COLOR_GREEN);
+		}
+      }
+	  else if (effect == "champagne") {
+		for(int n=0; n<6; ++n) {
+        	Effects::showAnimatedBitmap(Effects::ANI_BITMAP_CHAMPGLASS, (eColor) COLOR_WHITE);
+		}
+      }
+	  else if (effect == "count") {
+        Effects::showAnimatedBitmap(Effects::ANI_COUNT, (eColor) COLOR_WHITE);
       }
       else {
         Effects::showTickerString(effect.c_str(), 5, COLOR_WHITE);
@@ -1548,22 +1571,22 @@ void buttonTimePressed()
 	DEBUG_PRINTLN("Time pressed.");
 	SYSLOG("Time pressed.");
 
-#ifdef BUZZER
-	// Switch off alarm.
-	if (alarmOn)
-	{
-		DEBUG_PRINTLN("Alarm off.");
-		SYSLOG("Alarm off.");
-		digitalWrite(PIN_BUZZER, LOW);
-		alarmOn = false;
-		setMode(STD_MODE_TIME);
-		return;
-	}
-#endif
+	#ifdef BUZZER
+		// Switch off alarm.
+		if (alarmOn)
+		{
+			DEBUG_PRINTLN("Alarm off.");
+			SYSLOG("Alarm off.");
+			digitalWrite(PIN_BUZZER, LOW);
+			alarmOn = false;
+			setMode(STD_MODE_TIME);
+			return;
+		}
+	#endif
 
-#ifdef RTC_BACKUP
-	RTC.set(now());
-#endif
+	#ifdef RTC_BACKUP
+		RTC.set(now());
+	#endif
 
 	settings.saveToEEPROM();
 	modeTimeout = 0;
@@ -1582,68 +1605,68 @@ void buttonPlusPressed()
 	screenBufferNeedsUpdate = true;
 	titleTimeout = millis();
 
-#ifdef BUZZER
-	// Switch off alarm.
-	if (alarmOn)
-	{
-		DEBUG_PRINTLN("Alarm off.");
-		SYSLOG("Alarm off.");
-		digitalWrite(PIN_BUZZER, LOW);
-		alarmOn = false;
-		return;
-	}
-#endif
+	#ifdef BUZZER
+		// Switch off alarm.
+		if (alarmOn)
+		{
+			DEBUG_PRINTLN("Alarm off.");
+			SYSLOG("Alarm off.");
+			digitalWrite(PIN_BUZZER, LOW);
+			alarmOn = false;
+			return;
+		}
+	#endif
 
 	switch (mode)
 	{
 	case STD_MODE_TIME:
 		setMode(STD_MODE_TITLE_TEMP);
 		break;
-#ifdef BUZZER
-	case STD_MODE_TITLE_TEMP:
-		setMode(STD_MODE_TITLE_ALARM);
-		break;
-	case STD_MODE_TITLE_ALARM:
-		setMode(STD_MODE_TIME);
-		break;
-	case STD_MODE_SET_TIMER:
-		if (timerMinutes < 100)
-			timerMinutes++;
-		timer = now() + timerMinutes * 60;
-		timerSet = true;
-		break;
-	case STD_MODE_TIMER:
-		timerSet = false;
-		setMode(STD_MODE_SET_TIMER);
-		break;
-	case STD_MODE_ALARM_1:
-		settings.toggleAlarm1();
-		break;
-	case STD_MODE_SET_ALARM_1:
-		settings.setAlarmTime1(settings.getAlarmTime1() + 3600);
-#ifdef DEBUG
-		debug.debugTime("Alarm 1:", settings.getAlarmTime1(), HIDE_DATE);
-#endif
-		break;
-	case STD_MODE_ALARM_2:
-		settings.toggleAlarm2();
-		break;
-	case STD_MODE_SET_ALARM_2:
-		settings.setAlarmTime2(settings.getAlarmTime2() + 3600);
-#ifdef DEBUG
-		debug.debugTime("Alarm 2:", settings.getAlarmTime2(), HIDE_DATE);
-#endif
-#endif
+	#ifdef BUZZER
+		case STD_MODE_TITLE_TEMP:
+			setMode(STD_MODE_TITLE_ALARM);
+			break;
+		case STD_MODE_TITLE_ALARM:
+			setMode(STD_MODE_TIME);
+			break;
+		case STD_MODE_SET_TIMER:
+			if (timerMinutes < 100)
+				timerMinutes++;
+			timer = now() + timerMinutes * 60;
+			timerSet = true;
+			break;
+		case STD_MODE_TIMER:
+			timerSet = false;
+			setMode(STD_MODE_SET_TIMER);
+			break;
+		case STD_MODE_ALARM_1:
+			settings.toggleAlarm1();
+			break;
+		case STD_MODE_SET_ALARM_1:
+			settings.setAlarmTime1(settings.getAlarmTime1() + 3600);
+	#ifdef DEBUG
+			debug.debugTime("Alarm 1:", settings.getAlarmTime1(), HIDE_DATE);
+	#endif
+			break;
+		case STD_MODE_ALARM_2:
+			settings.toggleAlarm2();
+			break;
+		case STD_MODE_SET_ALARM_2:
+			settings.setAlarmTime2(settings.getAlarmTime2() + 3600);
+	#ifdef DEBUG
+			debug.debugTime("Alarm 2:", settings.getAlarmTime2(), HIDE_DATE);
+	#endif
+	#endif
 		break;
 	case EXT_MODE_TITLE_MAIN:
 		setMode(EXT_MODE_TITLE_TIME);
 		break;
-#ifdef PIN_LDR
-	case EXT_MODE_LDR:
-		settings.toggleUseLdr();
-		if (!settings.getUseLdr()) brightness = settings.getBrightness();
-		break;
-#endif
+	#ifdef PIN_LDR
+		case EXT_MODE_LDR:
+			settings.toggleUseLdr();
+			if (!settings.getUseLdr()) brightness = settings.getBrightness();
+			break;
+	#endif
 	case EXT_MODE_BRIGHTNESS:
 		settings.setBrightness(constrain(settings.getBrightness() + map(1, 0, 9, 0, 255), MIN_BRIGHTNESS, MAX_BRIGHTNESS));
 		brightness = settings.getBrightness();
@@ -1695,9 +1718,9 @@ void buttonPlusPressed()
 		break;
 	case EXT_MODE_TIMESET:
 		setTime(hour() + 1, minute(), second(), day(), month(), year());
-#ifdef DEBUG
-		debug.debugTime("Time set:", now(), SHOW_DATE);
-#endif
+	#ifdef DEBUG
+			debug.debugTime("Time set:", now(), SHOW_DATE);
+	#endif
 		break;
 	case EXT_MODE_IT_IS:
 		settings.toggleItIs();
@@ -1716,18 +1739,18 @@ void buttonPlusPressed()
 		break;
 	case EXT_MODE_NIGHTOFF:
 		settings.setNightOffTime(settings.getNightOffTime() + 3600);
-#ifdef DEBUG
-		debug.debugTime("Night off:", settings.getNightOffTime(), HIDE_DATE);
-#endif
+	#ifdef DEBUG
+			debug.debugTime("Night off:", settings.getNightOffTime(), HIDE_DATE);
+	#endif
 		break;
 	case EXT_MODE_TEXT_DAYON:
 		setMode(EXT_MODE_DAYON);
 		break;
 	case EXT_MODE_DAYON:
 		settings.setDayOnTime(settings.getDayOnTime() + 3600);
-#ifdef DEBUG
-		debug.debugTime("Day on:", settings.getDayOnTime(), HIDE_DATE);
-#endif
+	#ifdef DEBUG
+			debug.debugTime("Day on:", settings.getDayOnTime(), HIDE_DATE);
+	#endif
 		break;
 	case EXT_MODE_TITLE_TEST:
 		setMode(EXT_MODE_TITLE_MAIN);
@@ -3014,7 +3037,7 @@ void handleButtonEvents()
 	message += "<head>";
 	message += "<title>" + String(PRODUCT_NAME) + " Events</title>";
 	message += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">";
-	message += "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css\">";
+	message += "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0-12/css/all.min.css\">";
 	message += "<style>";
 	message += "body{background-color:#FFFFFF;text-align:center;color:#333333;font-family:Sans-serif;font-size:16px;}";
 	message += "input[type=submit]{background-color:#1FA3EC;text-align:center;color:#FFFFFF;width:200px;padding:12px;border:5px solid #FFFFFF;font-size:20px;border-radius:10px;}";

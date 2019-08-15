@@ -42,8 +42,9 @@ enum eColor : uint8_t
 	COLOR_MAGENTA,
 	COLOR_MAGENTA_25,
 	COLOR_MAGENTA_50,
+	COLOR_BROWN,
 	COLOR_PINK,
-	COLOR_COUNT = COLOR_PINK
+	COLOR_COUNT = COLOR_PINK,
 };
 
 const char sColorStr[][15] PROGMEM =
@@ -72,6 +73,7 @@ const char sColorStr[][15] PROGMEM =
 	"Magenta",
 	"Magenta 75%",
 	"Magenta 50%",
+	"Brown",
 	"Pink",
 };
 
@@ -120,7 +122,9 @@ const color_s defaultColors[] =
 	{ 0x7F, 0x00, 0xAF }, // 22 MAGENTA_25
 	{ 0xCF, 0x00, 0xCF }, // 23 MAGENTA_50
 
-	{ 0xFF, 0x00, 0x7F }  // 24 PINK
+	{ 0x8B, 0x45, 0x13 }, // 24 BROWN 8B4513
+
+	{ 0xFF, 0x00, 0x7F }  // 25 PINK
 } ;
 
 static uint32_t getDefaultColor(uint8_t colorNum){

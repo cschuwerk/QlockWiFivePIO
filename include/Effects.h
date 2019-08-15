@@ -73,18 +73,44 @@ public:
 
 	static void showFireWork(byte posX, eColor color);
 	static void showHeart(eColor color);
-  static void showHeart(eColor color, unsigned int repetitions);
+	static void showHeartBig(eColor color);
+  	static void showHeart(eColor color, unsigned int repetitions);
 	static void showCandle(eColor color);
+	static void showCoffee(eColor color, unsigned int repetitions = 1);
 	static void showBJ(eColor color);
 	static void showBitmap(byte bitmapIdx, byte duration, eColor color);
 	static void showAnimatedBitmap(byte animatedBitmap, eColor color);
 	static void writeToBuffer(uint16_t aMatrix[], unsigned int aDuration, eColor color);
-  static void writeToBuffer(uint16_t aMatrix[], unsigned int aDuration, uint32_t color[10][11]);
+  	static void writeToBuffer(uint16_t aMatrix[], unsigned int aDuration, uint32_t color[10][11]);
 
 };
 
 const uint16_t effectMasksHeart[][10] = {
-	{ // 0:heart small
+	{ // 0:start small
+		0b00000000000,
+		0b00000000000,
+		0b00001110000,
+		0b00000100000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000
+	},
+	{ // 1:start small
+		0b00000000000,
+		0b00001010000,
+		0b00011111000,
+		0b00001110000,
+		0b00000100000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000
+	},
+	{ // 2:heart small
 		0b00000000000,
 		0b00011011000,
 		0b00111111100,
@@ -96,7 +122,7 @@ const uint16_t effectMasksHeart[][10] = {
 		0b00000000000,
 		0b00000000000
 	},
-	{ // 1:heart big
+	{ // 3:heart big
 		0b00111011100,
 		0b01100100110,
 		0b01000000010,
@@ -254,6 +280,129 @@ const uint16_t effectMasksFireWork[][10] = {
 		0b00101010100,
 		0b00100100100,
 		0b00001010000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000
+	}
+};
+
+const uint16_t effectMasksCoffee[][10] = {
+	{ // 0:base
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b11111111110,
+		0b10000000101,
+		0b11111111110,
+		0b01111111000,
+		0b00111110000,
+		0b11111111100
+	},
+	{ // 1:steam
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000
+	},
+	{ // 2:steam
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00100000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000
+	},
+	{ // 3:steam
+		0b00000000000,
+		0b00000000000,
+		0b01000000000,
+		0b00100010000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000
+	},
+	{ // 4:steam
+		0b00000000000,
+		0b00100000000,
+		0b01000100000,
+		0b00100010000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000
+	},
+	{ // 5:steam
+		0b00000000000,
+		0b00100010000,
+		0b01000100000,
+		0b00100010000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000
+	},
+	{ // 6:steam
+		0b00000000000,
+		0b00100010000,
+		0b00100010000,
+		0b00100010000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000
+	},
+	{ // 7:steam
+		0b00000000000,
+		0b00100010000,
+		0b00010001000,
+		0b00100010000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000
+	},
+	{ // 8 steam
+		0b00000000000,
+		0b00100010000,
+		0b00010010000,
+		0b00100010000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000
+	},
+	{ // 9 steam
+		0b00000000000,
+		0b00100010000,
+		0b00100010000,
+		0b00100010000,
+		0b00000000000,
+		0b00000000000,
+		0b00000000000,
 		0b00000000000,
 		0b00000000000,
 		0b00000000000
