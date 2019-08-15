@@ -2428,6 +2428,7 @@ void setupWebServer()
 	esp8266WebServer.on("/factoryReset", handleFactoryReset);
 	esp8266WebServer.on("/wifiReset", handleWiFiReset);
   esp8266WebServer.on("/effect", []() {handleShowEffect(); callBack();});
+  esp8266WebServer.on("/mode", []() {handleSelectMode(); callBack();});
 	esp8266WebServer.begin();
 }
 
@@ -2459,8 +2460,8 @@ void handleRoot()
 	message += "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0-12/css/all.min.css\">";
 	message += "<style>";
 	message += "body{background-color:#FFFFFF;text-align:center;color:#333333;font-family:Sans-serif;font-size:16px;}";
-	message += "button{background-color:#1FA3EC;text-align:center;color:#FFFFFF;width:200px;padding:10px;border:5px solid #FFFFFF;font-size:24px;border-radius:10px;}";
-  message += "button.effect{background-color:#1FA3EC;text-align:center;color:#FFFFFF;width:66px;padding:10px;border:5px solid #FFFFFF;font-size:24px;border-radius:10px;}";
+	message += "button{background-color:#1FA3EC;text-align:center;color:#FFFFFF;width:180px;padding:10px;border:5px solid #FFFFFF;font-size:24px;border-radius:10px;}";
+  message += "button.effect{background-color:#1FA3EC;text-align:center;color:#FFFFFF;width:60px;padding:10px;border:5px solid #FFFFFF;font-size:24px;border-radius:10px;}";
 	message += "</style>";
 	message += "</head>";
 	message += "<body>";
@@ -2476,13 +2477,13 @@ void handleRoot()
 	message += "<button onclick=\"window.location.href='/handleButtonMode'\"><i class=\"fas fa-bars\"></i></button>";
 	message += "<button onclick=\"window.location.href='/handleButtonTime'\"><i class=\"fas fa-clock\"></i></button>";
   message += "<br><br>";
-   message += "<h2>Mode</h2>";
-  message += "<button onclick=\"window.location.href='/mode?id='\" class=\"effect\"><i class=\"fas fa-clock\"></i></button>";
-  message += "<button onclick=\"window.location.href='/mode?id='\" class=\"effect\"><i class=\"fas fa-stopwatch\"></i></button>";
-  message += "<button onclick=\"window.location.href='/mode?id='\" class=\"effect\"><i class=\"fas fa-calendar-alt\"></i></button>";
-  message += "<button onclick=\"window.location.href='/mode?id='\" class=\"effect\"><i class=\"fas fa-calendar-day\"></i></button>";
-  message += "<button onclick=\"window.location.href='/mode?id='\" class=\"effect\"><i class=\"fas fa-cloud-sun\"></i></button>";
-  message += "<button onclick=\"window.location.href='/mode?id='\" class=\"effect\"><i class=\"fas fa-smile-wink\"></i></button>";
+  message += "<h2>Mode</h2>";
+  message += "<button onclick=\"window.location.href='/mode?id="+String(STD_MODE_TIME)+"'\" class=\"effect\"><i class=\"fas fa-clock\"></i></button>";
+  message += "<button onclick=\"window.location.href='/mode?id="+String(STD_MODE_SECONDS)+"'\" class=\"effect\"><i class=\"fas fa-stopwatch\"></i></button>";
+  message += "<button onclick=\"window.location.href='/mode?id="+String(STD_MODE_DATE)+"'\" class=\"effect\"><i class=\"fas fa-calendar-alt\"></i></button>";
+  message += "<button onclick=\"window.location.href='/mode?id="+String(STD_MODE_WEEKDAY)+"'\" class=\"effect\"><i class=\"fas fa-calendar-day\"></i></button>";
+  message += "<button onclick=\"window.location.href='/mode?id="+String(STD_MODE_EXT_TEMP)+"'\" class=\"effect\"><i class=\"fas fa-cloud-sun\"></i></button>";
+  message += "<button onclick=\"window.location.href='/mode?id="+String(STD_MODE_EXT_HUMIDITY)+"'\" class=\"effect\"><i class=\"fas fa-tint\"></i></button>";
   message += "<h2>Effects</h2>";
   message += "<button onclick=\"window.location.href='/effect?name=heart'\" class=\"effect\"><i class=\"fas fa-heart\"></i></button>";
   message += "<button onclick=\"window.location.href='/effect?name=smile'\" class=\"effect\"><i class=\"fas fa-smile-wink\"></i></button>";
@@ -3220,4 +3221,10 @@ void handleShowEffect()
 #ifdef DEBUG
   Serial.println("Web-Event set: " + effect);
 #endif
+}
+
+void handleSelectMode() {
+  int newMode = esp8266WebServer.arg("id").toInt();
+  mode = (eMode) newMode;
+  screenBufferNeedsUpdate = true;
 }
