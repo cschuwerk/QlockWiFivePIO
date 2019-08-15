@@ -28,7 +28,7 @@ Software settings.
 #define NTP_SERVER "pool.ntp.org"
 
 //#define SELFTEST
-#define SHOW_IP
+//#define SHOW_IP
 //#define NONE_TECHNICAL_ZERO
 #define AUTO_MODECHANGE_TIME 60
 //#define DEDICATION "The only reason for time is so that everything doesn't happen at once.<br>(Albert Einstein)"
@@ -171,7 +171,7 @@ Default values for EEPROM.
 Misc.
 ******************************************************************************/
 
-//#define DEBUG
+#define DEBUG
 //#define DEBUG_MATRIX
 //#define DEBUG_FPS
 
@@ -222,7 +222,7 @@ Misc.
 #define PIN_LEDS_DATA   D8 //D6
 #define PIN_LDR         A0
 
-#define BUTTONS
+//#define BUTTONS
 #define PLUS_BUTTON_PRESSING_AGAINST LOW
 #define MINUS_BUTTON_PRESSING_AGAINST LOW
 #define MODE_BUTTON_PRESSING_AGAINST HIGH

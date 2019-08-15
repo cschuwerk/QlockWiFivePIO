@@ -22,6 +22,7 @@
 
 #define NUM_EVTS 8
 #define LEN_LOC_STR 30 
+#define LEN_API_KEY 34 
 
 class Settings {
 public:
@@ -106,6 +107,9 @@ public:
 	void setLocation(char text[], uint8_t size);
 	char* getLocation(char* locationText, uint8_t size);
 
+  void setWeatherAPIKey(char text[], uint8_t size);
+  char* getWeatherAPIKey(char* locationText, uint8_t size);
+
 	void saveToEEPROM();
 	void resetToDefault();
 
@@ -136,6 +140,7 @@ private:
 		uint8_t eventDisplayRate;
 		event_t events[NUM_EVTS];
 		char location[LEN_LOC_STR];
+    char weather_api_key[32];
 	} mySettings;
 
 	void loadFromEEPROM();

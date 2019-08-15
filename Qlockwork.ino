@@ -107,6 +107,7 @@ uint8_t outdoorHumidity = 0;
 uint8_t outdoorCode = 0;
 uint8_t errorCounterYahoo = 0;
 char location[LEN_LOC_STR];
+char weather_api_key[LEN_API_KEY];
 
 // Update info
 String updateInfo = "";
@@ -176,8 +177,8 @@ void setup()
  * Serielle darf bei QlockWiFive v1.2 nicht mehr aktiv sein, da RX/TX mit Tasten 
  * belegt sind. Muss also h�ndisch einkommentiert werden, wenn trotzdem gebraucht.
  */
-//	Serial.begin(SERIAL_SPEED);
-//	while (!Serial);
+	Serial.begin(SERIAL_SPEED);
+	while (!Serial);
 
 	// Here we go...
 	DEBUG_PRINTLN();
@@ -498,7 +499,7 @@ void loop()
 			// Get weather from Yahoo.
 			if (WiFi.status() == WL_CONNECTED) {
 				settings.getLocation(location, sizeof(location));
-				//getOutdoorConditions(String(location));
+				getOutdoorConditions(String(location));
 			}
 		}
 	}
@@ -2127,12 +2128,12 @@ void getUpdateInfo()
 		JsonObject &responseJson = jsonBuffer.parseObject(response);
 		if (responseJson.success())
 		{
-#ifdef UPDATE_INFO_STABLE
-			updateInfo = responseJson["channel"]["stable"]["version"].as<String>();
-#endif
-#ifdef UPDATE_INFO_UNSTABLE
-			updateInfo = responseJson["channel"]["unstable"]["version"].as<String>();
-#endif
+    #ifdef UPDATE_INFO_STABLE
+    			updateInfo = responseJson["channel"]["stable"]["version"].as<String>();
+    #endif
+    #ifdef UPDATE_INFO_UNSTABLE
+    			updateInfo = responseJson["channel"]["unstable"]["version"].as<String>();
+    #endif
 			return;
 		}
 	}
@@ -2144,61 +2145,72 @@ void getUpdateInfo()
 #endif
 
 /******************************************************************************
-  Get outdoor conditions from Yahoo.
+  Get outdoor conditions
 ******************************************************************************/
 
 void getOutdoorConditions(String location) {
 #ifdef DEBUG
 	Serial.println("Sending HTTP-request for weather.");
 #endif
-	location.replace(" ", "%20");
-	location.replace(",", "%2C");
-  char server[] = "www.metaweather.com";
+  
+  String server = "api.openweathermap.org";
+  settings.getWeatherAPIKey(weather_api_key, sizeof(weather_api_key));
+  String path = "/data/2.5/weather?zip="+location+"&units=metric&APPID="+weather_api_key;
+	
 	WiFiClient wifiClient;
-	HttpClient client = HttpClient(wifiClient, server, 80);
-
-	client.get("www.metaweather.com/api/location/" + location + "/");
+	HttpClient client = HttpClient(wifiClient, server.c_str(), 80);
+  
+  client.get(path);
 	uint16_t statusCode = client.responseStatusCode();
 	
 	if (statusCode == 200) {
 		String response = client.responseBody();
-		response = response.substring(response.indexOf('{'),
-				response.lastIndexOf('}') + 1);
+		//response = response.substring(response.indexOf('{'), response.lastIndexOf('}') + 1);
 
-#ifdef DEBUG
-		Serial.printf("Status: %u\r\n", statusCode);
-		Serial.printf("Response is %u bytes.\r\n", response.length());
-		Serial.println(response);
-		Serial.println("Parsing JSON.");
-#endif
+    #ifdef DEBUG
+    		Serial.printf("Status: %u\r\n", statusCode);
+    		Serial.printf("Response is %u bytes.\r\n", response.length());
+    		Serial.println(response);
+    		Serial.println("Parsing JSON.");
+    #endif
+
+    // Parse the JSON
+    // see https://arduinojson.org/v5/assistant/
+    const size_t capacity = JSON_ARRAY_SIZE(3) + 2*JSON_OBJECT_SIZE(1) + JSON_OBJECT_SIZE(2) + 3*JSON_OBJECT_SIZE(4) + JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(6) + JSON_OBJECT_SIZE(12) + 480;
 
 		//DynamicJsonBuffer jsonBuffer;
-		StaticJsonBuffer<512> jsonBuffer;
+		StaticJsonBuffer<capacity> jsonBuffer;
 		JsonObject &responseJson = jsonBuffer.parseObject(response);
+
 		if (responseJson.success()) {
-			outdoorTitle = responseJson["consolidated_weather"][0]["weather_state_name"].as<String>();
-			outdoorTemperature = responseJson["consolidated_weather"][0]["the_temp"].as<int8_t>();
-			outdoorHumidity = responseJson["consolidated_weather"][0]["humidity"].as<uint8_t>();
-			outdoorCode = 0;
-#ifdef DEBUG
-			Serial.println(outdoorTitle);
-			Serial.printf("Temperature (Yahoo): %dC\r\n", outdoorTemperature);
-			Serial.printf("Humidity (Yahoo): %u%%\r\n", outdoorHumidity);
-			Serial.println("Condition (Yahoo): " + String(sWeatherCondition[outdoorCode]) + " (" + String(outdoorCode) + ")");
-#endif
-			errorCounterYahoo = 0;
+      Serial.println("Parsing JSON successful.");
+      outdoorCode = responseJson["weather"][0]["id"].as<int8_t>();
+			outdoorTitle =  responseJson["weather"][0]["main"].as<String>() + ": " + responseJson["weather"][0]["description"].as<String>();
+			outdoorTemperature = responseJson["main"]["temp"].as<int8_t>();
+			outdoorHumidity = responseJson["main"]["humidity"].as<uint8_t>();
+      #ifdef DEBUG
+      			Serial.println(outdoorTitle);
+      			Serial.printf("Temperature (Online): %dC\r\n", outdoorTemperature);
+      			Serial.printf("Humidity (Online): %u%%\r\n", outdoorHumidity);
+      			//Serial.println("Condition (Online): " + String(sWeatherCondition[outdoorCode]) + " (" + String(outdoorCode) + ")");
+      #endif
 			return;
 		}
+   else {
+    #ifdef DEBUG
+      Serial.println("Json parsing (outdoor temperature) failed!");
+    #endif
+   }
 	}
-#ifdef DEBUG
-	else Serial.printf("Status: %u\r\n", statusCode);
-	outdoorTitle = "Request failed.";
-#endif
-	if (errorCounterYahoo < 255)
-		errorCounterYahoo++;
-#ifdef DEBUG
-	Serial.printf("Error (Yahoo): %u\r\n", errorCounterYahoo);
-#endif
+	else {
+    #ifdef DEBUG
+	    Serial.printf("Status: %u\r\n", statusCode);
+      Serial.println("API Key: " + String(weather_api_key));
+      Serial.println("URL: " + server + path);
+    #endif
+    outdoorTitle = "Request failed.";
+	}
+    
 }
 
 #ifdef RTC_BACKUP
@@ -2538,7 +2550,8 @@ void handleRoot()
 			message += "fa fa-cloud";
 			break;
 		}
-		message += "\" style=\"font-size:20px;\"></span> " + String(FPSTR(sWeatherCondition[outdoorCode]));
+		//message += "\" style=\"font-size:20px;\"></span> " + String(FPSTR(sWeatherCondition[outdoorCode]));
+    message += "\" style=\"font-size:20px;\"></span> " + outdoorTitle;
 	}
 	message += "<span style=\"font-size:12px;\">";
 	message += "<br><br>" + String(PRODUCT_NAME) + " was <i class=\"fa fa-code\"></i> with <i class=\"fa fa-heart\"></i> by tmw-it.ch and <a href=\"http://bracci.ch\">bracci.</a>";
@@ -2892,6 +2905,14 @@ void handleButtonSettings()
 	message += String(location) + "\" pattern=\"[\\x20-\\x7e]{0," + String(LEN_LOC_STR-1) + "}\" placeholder=\"Enter Location ...\">";
 	message += "</td></tr>";
 	// ------------------------------------------------------------------------
+  message += "<tr><td>";
+  message += "OpenWeatherMap API Key:";
+  message += "</td><td>";
+  message += "<input type=\"text\" name=\"api_key\" value=\"";
+  settings.getWeatherAPIKey(weather_api_key, sizeof(weather_api_key));
+  message += String(weather_api_key) + "\" placeholder=\"Enter API key ...\">";
+  message += "</td></tr>";
+  // ------------------------------------------------------------------------
 	message += "<tr><td>";
 	message += "Set date/time:";
 	message += "</td><td>";
@@ -3110,6 +3131,11 @@ void handleCommitSettings()
 	esp8266WebServer.arg("loc").toCharArray(text, sizeof(text), 0);
 	settings.setLocation(text, sizeof(text));
 	// ------------------------------------------------------------------------
+  char key[LEN_API_KEY];
+  memset(key, 0, sizeof(key));
+  esp8266WebServer.arg("api_key").toCharArray(key, sizeof(key), 0);
+  settings.setWeatherAPIKey(key, sizeof(key));
+  // ------------------------------------------------------------------------
 	settings.saveToEEPROM();
 	screenBufferNeedsUpdate = true;
 }

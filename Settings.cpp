@@ -253,6 +253,18 @@ char* Settings::getLocation(char* locationText, uint8_t size) {
 	return locationText;
 }
 
+void Settings::setWeatherAPIKey(char key[], uint8_t size) {
+  memcpy(mySettings.weather_api_key, key, _min(sizeof(mySettings.weather_api_key), size));
+}
+
+char* Settings::getWeatherAPIKey(char* key, uint8_t size) {
+  memset(key, 0, size);
+  memcpy(key, mySettings.weather_api_key, sizeof(mySettings.weather_api_key));
+  return key;
+}
+
+
+
 // Set all defaults.
 void Settings::resetToDefault() {
 	DEBUG_PRINTLN("*** Settings set to defaults in EEPROM. ***");
@@ -304,6 +316,7 @@ void Settings::resetToDefault() {
 		mySettings.events[i].color = COLOR_WHITE;
 	}
 	memset(mySettings.location, 0, sizeof(mySettings.location));
+  memset(mySettings.weather_api_key, 0, sizeof(mySettings.weather_api_key));
 
 	saveToEEPROM();
 }
