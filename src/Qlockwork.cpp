@@ -7,7 +7,7 @@ An advanced firmware for a DIY "word-clock".
 ******************************************************************************/
 
 #define FIRMWARE_VERSION 20181124
-
+#include <Arduino.h>
 #include <ArduinoJson.h>
 #include <ArduinoHttpClient.h>
 #include <ArduinoOTA.h>
@@ -165,6 +165,60 @@ bool startTransition = false;
 TransitionFade transitionFade((LedDriverBase*)&ledDriver);
 TransitionSlide transitionSlide((LedDriverBase*)&ledDriver);
 TransitionMatrix transitionMatrix((LedDriverBase*)&ledDriver);
+
+
+/******************************************************************************
+Function declarations
+******************************************************************************/
+
+// Basic functions
+void setMode(Mode newMode);
+time_t getRtcTime(void);
+time_t getNtpTime(void);
+void getUpdateInfo(void);
+void setLedsOn();
+void setLedsOff();
+void setBrightnessFromLdr();
+void setDisplayToToggle();
+void setColor(uint32_t color);
+void setColor(uint32_t color, bool disableCC);
+void setColorNum(uint8_t colorNum);
+void setColorNum(uint8_t colorNum, bool disableCC);
+void showIP(IPAddress ipAddr);
+void updateScreenBuffer(uint16_t screenBuffer[], uint32_t color, uint8_t brightness);
+
+// Buttons
+void buttonMinusPressed(void);
+void buttonModePressed(void);
+void buttonOnOffPressed(void);
+void buttonPlusPressed(void);
+void buttonSettingsPressed(void);
+void buttonTimePressed(void);
+void doubleExtModePressed(void);
+
+// Webinterface
+void setupWebServer();
+void callRoot();
+void callBack();
+void handleButtonEvents();
+void handleButtonSettings();
+void handleCommitEvents();
+void handleNotFound();
+void handleReset();
+void handleFactoryReset();
+void handleWiFiReset();
+void handleRoot();
+void handleSelectMode();
+void handleShowEffect();
+void handleCommitSettings();
+
+// Temperature & Weather
+void getOutdoorConditions(String location);
+void getRoomConditions();
+
+// IR
+void remoteAction(decode_results irDecodeResult);
+void remoteFunctionTrigger(eMode functionMode, void (*func)());
 
 /******************************************************************************
 Setup().
@@ -2046,8 +2100,7 @@ void remoteAction(decode_results irDecodeResult)
 Transitions.
 ******************************************************************************/
 
-void updateScreenBuffer(uint16_t screenBuffer[], uint32_t color,
-		uint8_t brightness) {
+void updateScreenBuffer(uint16_t screenBuffer[], uint32_t color, uint8_t brightness) {
 	ledDriver.setBrightness(brightness);
 	if (settings.getColorChange() != COLORCHANGE_MOOD) {
 		ledDriver.setScreenColor(color);

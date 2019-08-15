@@ -163,7 +163,7 @@ void Effects::showFireWork(byte posX, eColor color) {
 void Effects::showCandle(eColor color) {
 	uint16_t matrix[16];
   uint32_t cBase = getDefaultColor(color);
-  int32_t  cFlame = getDefaultColor(COLOR_YELLOW);
+  uint32_t  cFlame = getDefaultColor(COLOR_YELLOW);
   uint32_t pixelColor[][11] = {
       {cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame},
       {cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame,cFlame},
