@@ -769,6 +769,9 @@ if(transitionActive) {
       else if (effect == "heart") {
         Effects::showHeart(COLOR_RED, 4);
       }
+      else if (effect == "smilie") {
+        Effects::showHeart(COLOR_RED, 4);
+      }
       else {
         Effects::showTickerString(effect.c_str(), 5, COLOR_WHITE);
       }
@@ -2424,7 +2427,7 @@ void setupWebServer()
 	esp8266WebServer.on("/reset", handleReset);
 	esp8266WebServer.on("/factoryReset", handleFactoryReset);
 	esp8266WebServer.on("/wifiReset", handleWiFiReset);
-  esp8266WebServer.on("/effect", handleShowEffect);
+  esp8266WebServer.on("/effect", []() {handleShowEffect(); callBack();});
 	esp8266WebServer.begin();
 }
 
@@ -2453,10 +2456,11 @@ void handleRoot()
 	message += "<title>" + String(PRODUCT_NAME) + "</title>";
 	message += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">";
 	message += "<meta http-equiv=\"refresh\" content=\"60\" charset=\"UTF-8\">";
-	message += "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css\">";
+	message += "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0-12/css/all.min.css\">";
 	message += "<style>";
 	message += "body{background-color:#FFFFFF;text-align:center;color:#333333;font-family:Sans-serif;font-size:16px;}";
 	message += "button{background-color:#1FA3EC;text-align:center;color:#FFFFFF;width:200px;padding:10px;border:5px solid #FFFFFF;font-size:24px;border-radius:10px;}";
+  message += "button.effect{background-color:#1FA3EC;text-align:center;color:#FFFFFF;width:66px;padding:10px;border:5px solid #FFFFFF;font-size:24px;border-radius:10px;}";
 	message += "</style>";
 	message += "</head>";
 	message += "<body>";
@@ -2465,43 +2469,58 @@ void handleRoot()
 	message += DEDICATION;
 	message += "<br><br>";
 #endif
-	if (mode == STD_MODE_BLANK) message += "<button onclick=\"window.location.href='/handleButtonOnOff'\"><i class=\"fa fa-toggle-off\"></i></button>";
-	else message += "<button onclick=\"window.location.href='/handleButtonOnOff'\"><i class=\"fa fa-toggle-on\"></i></button>";
-	message += "<button onclick=\"window.location.href='/handleButtonSettings'\"><i class=\"fa fa-gear\"></i></button>";
+	if (mode == STD_MODE_BLANK) message += "<button onclick=\"window.location.href='/handleButtonOnOff'\"><i class=\"fas fa-toggle-off\"></i></button>";
+	else message += "<button onclick=\"window.location.href='/handleButtonOnOff'\"><i class=\"fas fa-toggle-on\"></i></button>";
+	message += "<button onclick=\"window.location.href='/handleButtonSettings'\"><i class=\"fas fa-cogs\"></i></button>";
 	message += "<br><br>";
-	message += "<button onclick=\"window.location.href='/handleButtonMode'\"><i class=\"fa fa-bars\"></i></button>";
-	message += "<button onclick=\"window.location.href='/handleButtonTime'\"><i class=\"fa fa-clock-o\"></i></button>";
+	message += "<button onclick=\"window.location.href='/handleButtonMode'\"><i class=\"fas fa-bars\"></i></button>";
+	message += "<button onclick=\"window.location.href='/handleButtonTime'\"><i class=\"fas fa-clock\"></i></button>";
+  message += "<br><br>";
+   message += "<h2>Mode</h2>";
+  message += "<button onclick=\"window.location.href='/mode?id='\" class=\"effect\"><i class=\"fas fa-clock\"></i></button>";
+  message += "<button onclick=\"window.location.href='/mode?id='\" class=\"effect\"><i class=\"fas fa-stopwatch\"></i></button>";
+  message += "<button onclick=\"window.location.href='/mode?id='\" class=\"effect\"><i class=\"fas fa-calendar-alt\"></i></button>";
+  message += "<button onclick=\"window.location.href='/mode?id='\" class=\"effect\"><i class=\"fas fa-calendar-day\"></i></button>";
+  message += "<button onclick=\"window.location.href='/mode?id='\" class=\"effect\"><i class=\"fas fa-cloud-sun\"></i></button>";
+  message += "<button onclick=\"window.location.href='/mode?id='\" class=\"effect\"><i class=\"fas fa-smile-wink\"></i></button>";
+  message += "<h2>Effects</h2>";
+  message += "<button onclick=\"window.location.href='/effect?name=heart'\" class=\"effect\"><i class=\"fas fa-heart\"></i></button>";
+  message += "<button onclick=\"window.location.href='/effect?name=smile'\" class=\"effect\"><i class=\"fas fa-smile-wink\"></i></button>";
+  message += "<button onclick=\"window.location.href='/effect?name=firework'\" class=\"effect\"><i class=\"fas fa-bomb\"></i></button>";
+  message += "<button onclick=\"window.location.href='/effect?name=candle'\" class=\"effect\"><i class=\"fas fa-birthday-cake\"></i></button>";
+  message += "<button onclick=\"window.location.href='/effect?name=coffee'\" class=\"effect\"><i class=\"fas fa-coffee\"></i></button>";
+  message += "<button onclick=\"window.location.href='/effect?name=smile'\" class=\"effect\"><i class=\"fas fa-tint\"></i></button>";
 #if defined(RTC_BACKUP) || defined(SENSOR_DHT22)
-	message += "<br><br><i class = \"fa fa-home\" style=\"font-size:20px;\"></i>";
-	message += "<br><i class=\"fa fa-thermometer\" style=\"font-size:20px;\"></i> " + String(roomTemperature) + "&deg;C / " + String(roomTemperature * 9.0 / 5.0 + 32.0) + "&deg;F";
+	message += "<br><br><i class = \"fas fa-home\" style=\"font-size:20px;\"></i>";
+	message += "<br><i class=\"fas fa-thermometer\" style=\"font-size:20px;\"></i> " + String(roomTemperature) + "&deg;C / " + String(roomTemperature * 9.0 / 5.0 + 32.0) + "&deg;F";
 #endif
 #ifdef SENSOR_DHT22
-	message += "<br><i class=\"fa fa-tint\" style=\"font-size:20px;\"></i> " + String(roomHumidity) + "%RH";
+	message += "<br><i class=\"fas fa-tint\" style=\"font-size:20px;\"></i> " + String(roomHumidity) + "%RH";
 	message += "<br><span style=\"font-size:20px;\">";
-	if (roomHumidity < 30) message += "<i style=\"color:Red;\" class=\"fa fa-square\"\"></i>";
-	else message += "<i style=\"color:Red;\" class=\"fa fa-square-o\"></i>";
-	if ((roomHumidity >= 30) && (roomHumidity < 40)) message += "&nbsp;<i style=\"color:Orange;\" class=\"fa fa-square\"></i>";
-	else message += "&nbsp;<i style=\"color:Orange;\" class=\"fa fa-square-o\"></i>";
-	if ((roomHumidity >= 40) && (roomHumidity <= 50)) message += "&nbsp;<i style=\"color:MediumSeaGreen;\" class=\"fa fa-square\"></i>";
-	else message += "&nbsp;<i style=\"color:MediumSeaGreen;\" class=\"fa fa-square-o\"></i>";
-	if ((roomHumidity > 50) && (roomHumidity < 60)) message += "&nbsp;<i style=\"color:Lightblue;\" class=\"fa fa-square\"></i>";
-	else message += "&nbsp;<i style=\"color:Lightblue;\" class=\"fa fa-square-o\"></i>";
-	if (roomHumidity >= 60) message += "&nbsp;<i style=\"color:Blue;\" class=\"fa fa-square\"></i>";
-	else message += "&nbsp;<i style=\"color:Blue;\" class=\"fa fa-square-o\"></i>";
+	if (roomHumidity < 30) message += "<i style=\"color:Red;\" class=\"fas fa-square\"\"></i>";
+	else message += "<i style=\"color:Red;\" class=\"fas fa-square-o\"></i>";
+	if ((roomHumidity >= 30) && (roomHumidity < 40)) message += "&nbsp;<i style=\"color:Orange;\" class=\"fas fa-square\"></i>";
+	else message += "&nbsp;<i style=\"color:Orange;\" class=\"fas fa-square-o\"></i>";
+	if ((roomHumidity >= 40) && (roomHumidity <= 50)) message += "&nbsp;<i style=\"color:MediumSeaGreen;\" class=\"fas fa-square\"></i>";
+	else message += "&nbsp;<i style=\"color:MediumSeaGreen;\" class=\"fas fa-square-o\"></i>";
+	if ((roomHumidity > 50) && (roomHumidity < 60)) message += "&nbsp;<i style=\"color:Lightblue;\" class=\"fas fa-square\"></i>";
+	else message += "&nbsp;<i style=\"color:Lightblue;\" class=\"fas fa-square-o\"></i>";
+	if (roomHumidity >= 60) message += "&nbsp;<i style=\"color:Blue;\" class=\"fas fa-square\"></i>";
+	else message += "&nbsp;<i style=\"color:Blue;\" class=\"fas fa-square-o\"></i>";
 	message += "</span>";
 #endif
 	if (WiFi.status() == WL_CONNECTED)
 	{
-		message += "<br><br><i class = \"fa fa-tree\" style=\"font-size:20px;\"></i>";
-		message += "<br><i class = \"fa fa-thermometer\" style=\"font-size:20px;\"></i> " + String(outdoorTemperature) + "&deg;C / " + String(outdoorTemperature * 9.0 / 5.0 + 32.0) + "&deg;F";
-		message += "<br><i class = \"fa fa-tint\" style=\"font-size:20px;\"></i> " + String(outdoorHumidity) + "%RH";
+		message += "<br><br><i class = \"fas fa-tree\" style=\"font-size:20px;\"></i>";
+		message += "<br><i class = \"fas fa-thermometer\" style=\"font-size:20px;\"></i> " + String(outdoorTemperature) + "&deg;C / " + String(outdoorTemperature * 9.0 / 5.0 + 32.0) + "&deg;F";
+		message += "<br><i class = \"fas fa-tint\" style=\"font-size:20px;\"></i> " + String(outdoorHumidity) + "%RH";
 		message += "<br><span class = \"";
 		switch (outdoorCode)
 		{
 		case 0:  // tornado
 		case 1:  // tropical storm
 		case 2:  // hurricane
-			message += "fa fa-frown-o";
+			message += "fas fa-frown-o";
 			break;
 		case 3:  // severe thunderstorms
 		case 4:  // thunderstorms
@@ -2510,7 +2529,7 @@ void handleRoot()
 		case 39: // scattered thunderstorms
 		case 45: // thundershowers
 		case 47: // isolated thundershowers
-			message += "fa fa-flash";
+			message += "fas fa-flash";
 			break;
 		case 5:  // mixed rain and snow
 		case 6:  // mixed rain and sleet
@@ -2520,7 +2539,7 @@ void handleRoot()
 		case 10: // freezing rain
 		case 11: // showers
 		case 12: // showers
-			message += "fa fa-umbrella";
+			message += "fas fa-umbrella";
 			break;
 		case 13: // snow flurries
 		case 14: // light snow showers
@@ -2531,30 +2550,30 @@ void handleRoot()
 		case 42: // scattered snow showers
 		case 43: // heavy snow
 		case 46: // snow showers
-			message += "fa fa-snowflake-o";
+			message += "fas fa-snowflake-o";
 			break;
 		case 23: // blustery
 		case 24: // windy
-			message += "fa fa-flag";
+			message += "fas fa-flag";
 			break;
 		case 31: // clear (night)
 		case 33: // fair (night)
-			message += "fa fa-moon-o";
+			message += "fas fa-moon-o";
 			break;
 		case 32: // sunny
 		case 34: // fair (day)
 		case 36: // hot
-			message += "fa fa-sun-o";
+			message += "fas fa-sun-o";
 			break;
 		default:
-			message += "fa fa-cloud";
+			message += "fas fa-cloud";
 			break;
 		}
 		//message += "\" style=\"font-size:20px;\"></span> " + String(FPSTR(sWeatherCondition[outdoorCode]));
     message += "\" style=\"font-size:20px;\"></span> " + outdoorTitle;
 	}
 	message += "<span style=\"font-size:12px;\">";
-	message += "<br><br>" + String(PRODUCT_NAME) + " was <i class=\"fa fa-code\"></i> with <i class=\"fa fa-heart\"></i> by tmw-it.ch and <a href=\"http://bracci.ch\">bracci.</a>";
+	message += "<br><br>" + String(PRODUCT_NAME) + " was <i class=\"fas fa-code\"></i> with <i class=\"fas fa-heart\"></i> by tmw-it.ch and <a href=\"http://bracci.ch\">bracci.</a>";
 	message += "<br>Firmware: " + String(FIRMWARE_VERSION);
 #if defined(UPDATE_INFO_STABLE) || defined(UPDATE_INFO_UNSTABLE)
 	if (updateInfo > String(FIRMWARE_VERSION)) message += "<br><span style=\"color:red;\">Firmwareupdate available! (" + updateInfo + ")</span>";
@@ -2602,7 +2621,7 @@ void handleButtonSettings()
 	message += "<head>";
 	message += "<title>" + String(PRODUCT_NAME) + " Settings</title>";
 	message += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">";
-	message += "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css\">";
+	message += "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0-12/css/all.min.css\">";
 	message += "<style>";
 	message += "body{background-color:#FFFFFF;text-align:center;color:#333333;font-family:Sans-serif;font-size:16px;}";
 	message += "input[type=submit]{background-color:#1FA3EC;text-align:center;color:#FFFFFF;width:200px;padding:12px;border:5px solid #FFFFFF;font-size:20px;border-radius:10px;}";
@@ -2920,11 +2939,11 @@ void handleButtonSettings()
 	message += "</td></tr>";
 	// ------------------------------------------------------------------------
 	message += "</table>";
-	message += "<br><button title=\"Save Settings.\"><i class=\"fa fa-check\"></i></button>";
+	message += "<br><button title=\"Save Settings.\"><i class=\"fas fa-check\"></i></button>";
 	message += "</form>";
-	message += "<button title=\"Events\" onclick=\"window.location.href='/handleButtonEvents'\"><i class=\"fa fa-birthday-cake\"></i></button>";
+	message += "<button title=\"Events\" onclick=\"window.location.href='/handleButtonEvents'\"><i class=\"fas fa-birthday-cake\"></i></button>";
 	message += "<br>";
-	message += "<button title=\"Back\" onclick=\"window.location.href='/'\"><i class=\"fa fa-reply\"></i></button>";
+	message += "<button title=\"Back\" onclick=\"window.location.href='/'\"><i class=\"fas fa-reply\"></i></button>";
 	message += "</body>";
 	message += "</html>";
 	esp8266WebServer.send(200, "text/html", message);
@@ -3020,9 +3039,9 @@ void handleButtonEvents()
 	// ------------------------------------------------------------------------
 
 	message += "</table>";
-	message += "<br><button title=\"Save Settings.\"><i class=\"fa fa-check\"></i></button>";
+	message += "<br><button title=\"Save Settings.\"><i class=\"fas fa-check\"></i></button>";
 	message += "</form>";
-	message += "<button title=\"Back\" onclick=\"window.location.href='/handleButtonSettings'\"><i class=\"fa fa-reply\"></i></button>";
+	message += "<button title=\"Back\" onclick=\"window.location.href='/handleButtonSettings'\"><i class=\"fas fa-reply\"></i></button>";
 	message += "</body>";
 	message += "</html>";
 	esp8266WebServer.send(200, "text/html", message);
@@ -3196,7 +3215,7 @@ void handleShowEffect()
 {
   mode = EXT_MODE_EFFECT;
   effect = esp8266WebServer.arg("name");
-  esp8266WebServer.send(200, "text/plain", "OK.");
+  //esp8266WebServer.send(200, "text/plain", "OK.");
 
 #ifdef DEBUG
   Serial.println("Web-Event set: " + effect);
