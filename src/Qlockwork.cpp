@@ -2557,9 +2557,9 @@ void handleRoot()
 	if (mode == STD_MODE_BLANK) message += "<button onclick=\"window.location.href='/handleButtonOnOff'\"><i class=\"fas fa-toggle-off\"></i></button>";
 	else message += "<button onclick=\"window.location.href='/handleButtonOnOff'\"><i class=\"fas fa-toggle-on\"></i></button>";
 	message += "<button onclick=\"window.location.href='/handleButtonSettings'\"><i class=\"fas fa-cogs\"></i></button>";
-	message += "<br><br>";
-	message += "<button onclick=\"window.location.href='/handleButtonMode'\"><i class=\"fas fa-bars\"></i></button>";
-	message += "<button onclick=\"window.location.href='/handleButtonTime'\"><i class=\"fas fa-clock\"></i></button>";
+	//message += "<br><br>";
+	//message += "<button onclick=\"window.location.href='/handleButtonMode'\"><i class=\"fas fa-bars\"></i></button>";
+	//message += "<button onclick=\"window.location.href='/handleButtonTime'\"><i class=\"fas fa-clock\"></i></button>";
   message += "<br><br>";
   message += "<h2>Mode</h2>";
   message += "<button onclick=\"window.location.href='/mode?id="+String(STD_MODE_TIME)+"'\" class=\"effect\"><i class=\"fas fa-clock\"></i></button>";
@@ -2568,6 +2568,8 @@ void handleRoot()
   message += "<button onclick=\"window.location.href='/mode?id="+String(STD_MODE_WEEKDAY)+"'\" class=\"effect\"><i class=\"fas fa-calendar-day\"></i></button>";
   message += "<button onclick=\"window.location.href='/mode?id="+String(STD_MODE_EXT_TEMP)+"'\" class=\"effect\"><i class=\"fas fa-cloud-sun\"></i></button>";
   message += "<button onclick=\"window.location.href='/mode?id="+String(STD_MODE_EXT_HUMIDITY)+"'\" class=\"effect\"><i class=\"fas fa-tint\"></i></button>";
+  message += "<h2>Message</h2>";
+  message += "<form action=\"/effect\"><input type=\"text\" name=\"name\" value=\"\" class=\"textmessage\"> <button class=\"effect\"><i class=\"fas fa-share-square\"></i></button></form>";
   message += "<h2>Effects</h2>";
   message += "<button onclick=\"window.location.href='/effect?name=heart'\" class=\"effect\"><i class=\"fas fa-heart\"></i></button>";
   message += "<button onclick=\"window.location.href='/effect?name=smile'\" class=\"effect\"><i class=\"fas fa-smile-wink\"></i></button>";
@@ -2577,7 +2579,6 @@ void handleRoot()
   message += "<button onclick=\"window.location.href='/effect?name=countdown'\" class=\"effect\"><i class=\"fas fa-stopwatch\"></i></button>";
   message += "<button onclick=\"window.location.href='/effect?name=champagne'\" class=\"effect\"><i class=\"fas fa-glass-cheers\"></i></button>";
   message += "<button onclick=\"window.location.href='/effect?name=christmas'\" class=\"effect\"><i class=\"fas fa-tree\"></i></button>";
-  message += "<form action=\"/effect\"><input type=\"text\" name=\"name\" value=\"\" class=\"textmessage\"> <button class=\"effect\"><i class=\"fas fa-share-square\"></i></button></form>";
 #if defined(RTC_BACKUP) || defined(SENSOR_DHT22)
 	message += "<br><br><i class = \"fas fa-home\" style=\"font-size:20px;\"></i>";
 	message += "<br><i class=\"fas fa-thermometer\" style=\"font-size:20px;\"></i> " + String(roomTemperature) + "&deg;C / " + String(roomTemperature * 9.0 / 5.0 + 32.0) + "&deg;F";
@@ -3314,4 +3315,5 @@ void handleSelectMode() {
   int newMode = esp8266WebServer.arg("id").toInt();
   mode = (eMode) newMode;
   screenBufferNeedsUpdate = true;
+  modeTimeout = millis();
 }
