@@ -29,7 +29,7 @@ Software settings.
 
 //#define SELFTEST
 //#define SHOW_IP
-//#define NONE_TECHNICAL_ZERO
+#define NONE_TECHNICAL_ZERO
 #define AUTO_MODECHANGE_TIME 60
 //#define DEDICATION "The only reason for time is so that everything doesn't happen at once.<br>(Albert Einstein)"
 

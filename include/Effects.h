@@ -79,6 +79,7 @@ public:
 	static void showCoffee(eColor color, unsigned int repetitions = 1);
 	static void showBJ(eColor color);
 	static void showBitmap(byte bitmapIdx, byte duration, eColor color);
+	static void showNumber(int number, byte duration, eColor color);
 	static void showAnimatedBitmap(byte animatedBitmap, eColor color);
 	static void writeToBuffer(uint16_t aMatrix[], unsigned int aDuration, eColor color);
   	static void writeToBuffer(uint16_t aMatrix[], unsigned int aDuration, uint32_t color[10][11]);

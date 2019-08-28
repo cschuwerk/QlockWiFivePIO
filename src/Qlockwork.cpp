@@ -833,10 +833,10 @@ if(transitionActive) {
       }
       else if (effect == "smile") {
 		for(int n=0; n<6; ++n) {
-        	Effects::showAnimatedBitmap(Effects::ANI_BITMAP_CHRISTTREE, (eColor) COLOR_YELLOW);
+        	Effects::showAnimatedBitmap(Effects::ANI_BITMAP_SMILEY_WINK, (eColor) COLOR_YELLOW);
 		}
       }
-	  else if (effect == "christmas_tree") {
+	  else if (effect == "christmas") {
 		for(int n=0; n<6; ++n) {
         	Effects::showAnimatedBitmap(Effects::ANI_BITMAP_CHRISTTREE, (eColor) COLOR_GREEN);
 		}
@@ -846,7 +846,7 @@ if(transitionActive) {
         	Effects::showAnimatedBitmap(Effects::ANI_BITMAP_CHAMPGLASS, (eColor) COLOR_WHITE);
 		}
       }
-	  else if (effect == "count") {
+	  else if (effect == "countdown") {
         Effects::showAnimatedBitmap(Effects::ANI_COUNT, (eColor) COLOR_WHITE);
       }
       else {
@@ -2566,7 +2566,9 @@ void handleRoot()
   message += "<button onclick=\"window.location.href='/effect?name=firework'\" class=\"effect\"><i class=\"fas fa-bomb\"></i></button>";
   message += "<button onclick=\"window.location.href='/effect?name=candle'\" class=\"effect\"><i class=\"fas fa-birthday-cake\"></i></button>";
   message += "<button onclick=\"window.location.href='/effect?name=coffee'\" class=\"effect\"><i class=\"fas fa-coffee\"></i></button>";
-  message += "<button onclick=\"window.location.href='/effect?name=smile'\" class=\"effect\"><i class=\"fas fa-tint\"></i></button>";
+  message += "<button onclick=\"window.location.href='/effect?name=countdown'\" class=\"effect\"><i class=\"fas fa-stopwatch\"></i></button>";
+  message += "<button onclick=\"window.location.href='/effect?name=champagne'\" class=\"effect\"><i class=\"fas fa-glass-cheers\"></i></button>";
+  message += "<button onclick=\"window.location.href='/effect?name=christmas'\" class=\"effect\"><i class=\"fas fa-tree\"></i></button>";
 #if defined(RTC_BACKUP) || defined(SENSOR_DHT22)
 	message += "<br><br><i class = \"fas fa-home\" style=\"font-size:20px;\"></i>";
 	message += "<br><i class=\"fas fa-thermometer\" style=\"font-size:20px;\"></i> " + String(roomTemperature) + "&deg;C / " + String(roomTemperature * 9.0 / 5.0 + 32.0) + "&deg;F";

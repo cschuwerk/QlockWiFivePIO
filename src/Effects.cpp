@@ -113,11 +113,11 @@ void Effects::showHeartBig(eColor color) {
 		for (byte j = 0; j < 8; j++) {
 				matrix[1 + j] |= (effectMasksHeart[3][j] << 5);
 		}
-		writeToBuffer(matrix, 60, color);
+		writeToBuffer(matrix, 30, color);
 		for (byte j = 0; j < 8; j++) {
 				matrix[1 + j] |= (effectMasksHeart[2][j] << 5);
 		}
-		writeToBuffer(matrix, 100, color);
+		writeToBuffer(matrix, 200, color);
 		
 		/* for (byte i = 0; i < 2; i++) {
 			renderer.clearScreenBuffer(matrix);
@@ -133,9 +133,9 @@ void Effects::showHeartBig(eColor color) {
 		}*/
 	}
 	renderer.clearScreenBuffer(matrix);
-	for (byte j = 0; j < 8; j++) {
+	/*for (byte j = 0; j < 8; j++) {
 		matrix[1 + j] |= (effectMasksHeart[0][j] << 5);
-	}
+	}*/
 	writeToBuffer(matrix, 48, color);
 }
 
@@ -300,8 +300,15 @@ void Effects::showAnimatedBitmap(byte animatedBitmap, eColor color) {
 		showBitmap(BITMAP_SMILEY_WINK, 25, color);
 		showBitmap(BITMAP_SMILEY, 25, color);
 		break;
+	case ANI_COUNT:
+		for(int i=10;i>=0;--i) {
+			unsigned long ms_start = millis();
+			showNumber(i,1.0,color);
+			while(millis() < ms_start+1000) { continue; }
+		}
+		break;
 	default:
-		;
+		break;
 	}
 }
 
@@ -317,4 +324,15 @@ void Effects::writeToBuffer(uint16_t aMatrix[], unsigned int aDuration, uint32_t
   ledDriver.setScreenColor(color);
   ledDriver.setScreenBuffer(aMatrix);
   delay(aDuration * RGB_SPEED_CORRECTION);
+}
+
+void Effects::showNumber(int number, byte duration, eColor color)
+{
+	uint16_t matrix[16] = {};
+	for (uint8_t i = 0; i <= 6; i++) {
+		matrix[1 + i] |= numbersBig[number / 10][i] << 11;
+		matrix[1 + i] |= numbersBig[number % 10][i] << 5;
+	}
+	writeToBuffer(matrix, duration, color);
+	
 }
