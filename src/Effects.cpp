@@ -39,6 +39,8 @@ void Effects::showTickerString(const char* str2disp, byte tickerSpeed, eColor co
 		unsigned int shift = 0; // Schiebekorrektur aufgrund variierender Buchstabenbreite
 		for (byte k = 0; k < strLength; k++) {
 			actChar = str2disp[k];
+			if((int) actChar > 126) continue; // Skip this letter if it is an unknown one
+		
 			if (actChar == ' ') {
 				shift += 3;  //bei einem Space eine Lücke von:
 			} else {

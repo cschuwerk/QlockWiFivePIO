@@ -850,6 +850,13 @@ if(transitionActive) {
         Effects::showAnimatedBitmap(Effects::ANI_COUNT, (eColor) COLOR_WHITE);
       }
       else {
+		effect.replace( "ä", "ae" );
+		effect.replace( "ü", "ue" );
+		effect.replace( "ö", "oe" );
+		effect.replace( "Ä", "AE" );
+		effect.replace( "Ö", "OE" );
+		effect.replace( "Ü", "UE" );
+		effect.replace( "ß", "ss" );
         Effects::showTickerString(effect.c_str(), 5, COLOR_WHITE);
       }
       
@@ -2503,8 +2510,8 @@ void setupWebServer()
 	esp8266WebServer.on("/reset", handleReset);
 	esp8266WebServer.on("/factoryReset", handleFactoryReset);
 	esp8266WebServer.on("/wifiReset", handleWiFiReset);
-  esp8266WebServer.on("/effect", []() {handleShowEffect(); callBack();});
-  esp8266WebServer.on("/mode", []() {handleSelectMode(); callBack();});
+    esp8266WebServer.on("/effect", []() {handleShowEffect(); callBack();});
+    esp8266WebServer.on("/mode", []() {handleSelectMode(); callBack();});
 	esp8266WebServer.begin();
 }
 
@@ -2537,7 +2544,8 @@ void handleRoot()
 	message += "<style>";
 	message += "body{background-color:#FFFFFF;text-align:center;color:#333333;font-family:Sans-serif;font-size:16px;}";
 	message += "button{background-color:#1FA3EC;text-align:center;color:#FFFFFF;width:180px;padding:10px;border:5px solid #FFFFFF;font-size:24px;border-radius:10px;}";
-  message += "button.effect{background-color:#1FA3EC;text-align:center;color:#FFFFFF;width:60px;padding:10px;border:5px solid #FFFFFF;font-size:24px;border-radius:10px;}";
+    message += "button.effect{background-color:#1FA3EC;text-align:center;color:#FFFFFF;width:60px;padding:10px;border:5px solid #FFFFFF;font-size:24px;border-radius:10px;}";
+	message += "input.textmessage{background-color:#FFFFFF;color:#333333;font-family:Sans-serif;width:360px;padding:8px;border:2px solid #1FA3EC;font-size:24px;border-radius:10px;}";
 	message += "</style>";
 	message += "</head>";
 	message += "<body>";
@@ -2569,6 +2577,7 @@ void handleRoot()
   message += "<button onclick=\"window.location.href='/effect?name=countdown'\" class=\"effect\"><i class=\"fas fa-stopwatch\"></i></button>";
   message += "<button onclick=\"window.location.href='/effect?name=champagne'\" class=\"effect\"><i class=\"fas fa-glass-cheers\"></i></button>";
   message += "<button onclick=\"window.location.href='/effect?name=christmas'\" class=\"effect\"><i class=\"fas fa-tree\"></i></button>";
+  message += "<form action=\"/effect\"><input type=\"text\" name=\"name\" value=\"\" class=\"textmessage\"> <button class=\"effect\"><i class=\"fas fa-share-square\"></i></button></form>";
 #if defined(RTC_BACKUP) || defined(SENSOR_DHT22)
 	message += "<br><br><i class = \"fas fa-home\" style=\"font-size:20px;\"></i>";
 	message += "<br><i class=\"fas fa-thermometer\" style=\"font-size:20px;\"></i> " + String(roomTemperature) + "&deg;C / " + String(roomTemperature * 9.0 / 5.0 + 32.0) + "&deg;F";
@@ -2998,7 +3007,7 @@ void handleButtonSettings()
 	message += "<tr><td>";
 	message += "Location:";
 	message += "</td><td>";
-	message += "<input type=\"text\" name=\"loc\" value=\"";
+	message += "<input type=\"text\" name=\"loc\" value=\""; 
 	settings.getLocation(location, sizeof(location));
 	message += String(location) + "\" pattern=\"[\\x20-\\x7e]{0," + String(LEN_LOC_STR-1) + "}\" placeholder=\"Enter Location ...\">";
 	message += "</td></tr>";
