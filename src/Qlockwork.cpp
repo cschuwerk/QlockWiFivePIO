@@ -2549,7 +2549,7 @@ void handleRoot()
 	message += "body{background-color:#FFFFFF;text-align:center;color:#333333;font-family:Sans-serif;font-size:16px;}";
 	message += "button{background-color:#1FA3EC;text-align:center;color:#FFFFFF;width:180px;padding:10px;border:5px solid #FFFFFF;font-size:24px;border-radius:10px;}";
     message += "button.effect{background-color:#1FA3EC;text-align:center;color:#FFFFFF;width:60px;padding:10px;border:5px solid #FFFFFF;font-size:24px;border-radius:10px;}";
-	message += "input.textmessage{background-color:#FFFFFF;color:#333333;font-family:Sans-serif;width:360px;padding:8px;border:2px solid #1FA3EC;font-size:24px;border-radius:10px;}";
+	message += "input.textmessage{background-color:#FFFFFF;color:#333333;font-family:Sans-serif;width:300px;padding:8px;border:2px solid #1FA3EC;font-size:24px;border-radius:10px;}";
 	message += "</style>";
 	message += "</head>";
 	message += "<body>";
