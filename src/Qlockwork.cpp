@@ -987,13 +987,14 @@ if(transitionActive) {
 			#ifdef WEATHER_LONG
 
 			if (outdoorTemperature >= 0) {
-				weather_display =  "+" + String(abs(outdoorTemperature)) + " Grad   ";
+				weather_display =  "+" + String(abs(outdoorTemperature)) + "°C   ";
 			}
 			else {
-				weather_display =  "-" + String(abs(outdoorTemperature)) + " Grad   ";
+				weather_display =  "-" + String(abs(outdoorTemperature)) + "°C   ";
 			}
-			Effects::showTickerString(weather_display.c_str(), 4, eColor(settings.getColorNum()));
-			weather_display = outdoorDescription + "   " +  String(outdoorHumidity) + "% Luftfeuchtigkeit";
+			weather_display +=  String(outdoorHumidity) + "%";
+			Effects::showTickerString(weather_display.c_str(), 5, eColor(settings.getColorNum()));
+			weather_display = outdoorDescription;
 			Effects::showTickerString(weather_display.c_str(), 6, eColor(settings.getColorNum()));
 
 			#endif
