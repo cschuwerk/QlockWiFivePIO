@@ -1782,7 +1782,7 @@ void buttonMinusPressed()
 	screenBufferNeedsUpdate = true;
 	titleTimeout = millis();
 
-#ifdef BUZZER
+	#ifdef BUZZER
 	// Switch off alarm.
 	if (alarmOn)
 	{
@@ -1792,65 +1792,65 @@ void buttonMinusPressed()
 		alarmOn = false;
 		return;
 	}
-#endif
+	#endif
 
 	switch (mode)
 	{
 	case STD_MODE_TITLE_TEMP:
 		setMode(STD_MODE_TIME);
 		break;
-#ifdef BUZZER
-	case STD_MODE_TITLE_ALARM:
-		setMode(STD_MODE_TITLE_TEMP);
-		break;
-	case STD_MODE_TIME:
-		setMode(STD_MODE_TITLE_ALARM);
-		break;
-	case STD_MODE_SET_TIMER:
-		if (timerMinutes > 0)
-		{
-			timerMinutes--;
-			if (timerMinutes == 0)
-				timerSet = false;
-			else
+		#ifdef BUZZER
+		case STD_MODE_TITLE_ALARM:
+			setMode(STD_MODE_TITLE_TEMP);
+			break;
+		case STD_MODE_TIME:
+			setMode(STD_MODE_TITLE_ALARM);
+			break;
+		case STD_MODE_SET_TIMER:
+			if (timerMinutes > 0)
 			{
-				timer = now() + timerMinutes * 60;
-				timerSet = true;
+				timerMinutes--;
+				if (timerMinutes == 0)
+					timerSet = false;
+				else
+				{
+					timer = now() + timerMinutes * 60;
+					timerSet = true;
+				}
 			}
-		}
-		break;
-	case STD_MODE_TIMER:
-		timerSet = false;
-		setMode(STD_MODE_SET_TIMER);
-		break;
-	case STD_MODE_ALARM_1:
-		settings.toggleAlarm1();
-		break;
-	case STD_MODE_SET_ALARM_1:
-		settings.setAlarmTime1(settings.getAlarmTime1() + 300);
-#ifdef DEBUG
-		debug.debugTime("Alarm 1:", settings.getAlarmTime1(), HIDE_DATE);
-#endif
-		break;
-	case STD_MODE_ALARM_2:
-		settings.toggleAlarm2();
-		break;
-	case STD_MODE_SET_ALARM_2:
-		settings.setAlarmTime2(settings.getAlarmTime2() + 300);
-#ifdef DEBUG
-		debug.debugTime("Alarm 2:", settings.getAlarmTime2(), HIDE_DATE);
-#endif
-#endif
+			break;
+		case STD_MODE_TIMER:
+			timerSet = false;
+			setMode(STD_MODE_SET_TIMER);
+			break;
+		case STD_MODE_ALARM_1:
+			settings.toggleAlarm1();
+			break;
+		case STD_MODE_SET_ALARM_1:
+			settings.setAlarmTime1(settings.getAlarmTime1() + 300);
+		#ifdef DEBUG
+			debug.debugTime("Alarm 1:", settings.getAlarmTime1(), HIDE_DATE);
+		#endif
+			break;
+		case STD_MODE_ALARM_2:
+			settings.toggleAlarm2();
+			break;
+		case STD_MODE_SET_ALARM_2:
+			settings.setAlarmTime2(settings.getAlarmTime2() + 300);
+			#ifdef DEBUG
+					debug.debugTime("Alarm 2:", settings.getAlarmTime2(), HIDE_DATE);
+			#endif
+		#endif
 		break;
 	case EXT_MODE_TITLE_MAIN:
 		setMode(EXT_MODE_TITLE_TEST);
 		break;
-#ifdef PIN_LDR
-	case EXT_MODE_LDR:
-		settings.toggleUseLdr();
-		if (!settings.getUseLdr()) brightness = settings.getBrightness();
-		break;
-#endif
+	#ifdef PIN_LDR
+		case EXT_MODE_LDR:
+			settings.toggleUseLdr();
+			if (!settings.getUseLdr()) brightness = settings.getBrightness();
+			break;
+	#endif
 	case EXT_MODE_BRIGHTNESS:
 		settings.setBrightness(constrain(settings.getBrightness() - map(1, 0, 9, 0, 255), MIN_BRIGHTNESS, MAX_BRIGHTNESS));
 		brightness = settings.getBrightness();
@@ -1902,9 +1902,9 @@ void buttonMinusPressed()
 		break;
 	case EXT_MODE_TIMESET:
 		setTime(hour(), minute() + 1, 0, day(), month(), year());
-#ifdef DEBUG
-		debug.debugTime("Time set:", now(), HIDE_DATE);
-#endif
+		#ifdef DEBUG
+				debug.debugTime("Time set:", now(), HIDE_DATE);
+		#endif
 		break;
 	case EXT_MODE_IT_IS:
 		settings.toggleItIs();
@@ -1923,18 +1923,18 @@ void buttonMinusPressed()
 		break;
 	case EXT_MODE_NIGHTOFF:
 		settings.setNightOffTime(settings.getNightOffTime() + 300);
-#ifdef DEBUG
-		debug.debugTime("Night off:", settings.getNightOffTime(), HIDE_DATE);
-#endif
+		#ifdef DEBUG
+				debug.debugTime("Night off:", settings.getNightOffTime(), HIDE_DATE);
+		#endif
 		break;
 	case EXT_MODE_TEXT_DAYON:
 		setMode(EXT_MODE_DAYON);
 		break;
 	case EXT_MODE_DAYON:
 		settings.setDayOnTime(settings.getDayOnTime() + 300);
-#ifdef DEBUG
-		debug.debugTime("Day on:", settings.getDayOnTime(), HIDE_DATE);
-#endif
+		#ifdef DEBUG
+				debug.debugTime("Day on:", settings.getDayOnTime(), HIDE_DATE);
+		#endif
 		break;
 	case EXT_MODE_TITLE_TEST:
 		setMode(EXT_MODE_TITLE_TIME);
