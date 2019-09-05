@@ -749,13 +749,13 @@ if(transitionActive) {
 
 		renderer.clearScreenBuffer(matrix);
 
-    // Clemens: Enable alarm symbol to show Wifi connectivity
-    if (WiFi.status() == WL_CONNECTED) {
-       renderer.setAlarmLed(matrix); 
-	}
-    else {
-        renderer.deactivateAlarmLed(matrix);
-    }
+		// Clemens: Enable alarm symbol to show Wifi connectivity
+		if (WiFi.status() == WL_CONNECTED) {
+		renderer.setAlarmLed(matrix); 
+		}
+		else {
+			renderer.deactivateAlarmLed(matrix);
+		}
 
 
 		// Render a new screenbuffer.
@@ -807,6 +807,10 @@ if(transitionActive) {
 				renderer.clearEntryWords(settings.getLanguage(), matrix);
 			}
 			break;
+
+	case EXT_MODE_TIMER:
+		//time_t countdown = now()+now();
+		break;
 
     case EXT_MODE_EFFECT:
       
@@ -866,7 +870,7 @@ if(transitionActive) {
       mode = STD_MODE_TIME;
       break;
 
-    // **** Mode AM/PM ******
+    	// **** Mode AM/PM ******
 		case STD_MODE_AMPM:
 			if (isAM())
 			{
@@ -889,13 +893,13 @@ if(transitionActive) {
 
 
 
-    // **** Mode Weekday ******
+    	// **** Mode Weekday ******
 		case STD_MODE_WEEKDAY:
 			renderer.setSmallText(String(sWeekday[weekday()][0]) + String(sWeekday[weekday()][1]), TEXT_POS_MIDDLE, matrix);
 			break;
 
 
-    // **** Mode Date ******
+    	// **** Mode Date ******
 		case STD_MODE_DATE:
 			if (day() < 10)
 			{
@@ -918,15 +922,15 @@ if(transitionActive) {
 			break;
 
 
-    // **** Mode Title Temperature ******
+    	// **** Mode Title Temperature ******
 		case STD_MODE_TITLE_TEMP:
 			renderer.setSmallText("TE", TEXT_POS_TOP, matrix);
 			renderer.setSmallText("MP", TEXT_POS_BOTTOM, matrix);
 			break;
 
 
-     // **** Mode Temperature (internal) ******
-#if defined(RTC_BACKUP) || defined(SENSOR_DHT22)
+     	// **** Mode Temperature (internal) ******
+		#if defined(RTC_BACKUP) || defined(SENSOR_DHT22)
 		case STD_MODE_TEMP:
 			renderer.clearScreenBuffer(matrix);
 			if (roomTemperature == 0)
@@ -952,8 +956,8 @@ if(transitionActive) {
 			}
 			renderer.setSmallText(String(int(abs(roomTemperature) + 0.5)), TEXT_POS_BOTTOM, matrix);
 			break;
-#endif
-#ifdef SENSOR_DHT22
+		#endif
+		#ifdef SENSOR_DHT22
 		case STD_MODE_HUMIDITY:
 			renderer.clearScreenBuffer(matrix);
 			renderer.setSmallText(String(int(((roomHumidity < 99)?roomHumidity:99) + 0.5)), TEXT_POS_TOP, matrix);
@@ -966,7 +970,7 @@ if(transitionActive) {
 
 
 
-    // **** Mode Temperature (External) ******
+    	// **** Mode Temperature (External) ******
 		case STD_MODE_EXT_TEMP:
 			if (outdoorTemperature > 0)
 			{
@@ -983,7 +987,7 @@ if(transitionActive) {
 
 
 
-    // **** Mode Humidity (External) ******
+    	// **** Mode Humidity (External) ******
 		case STD_MODE_EXT_HUMIDITY:
 			renderer.setSmallText(String((outdoorHumidity < 100)?outdoorHumidity:99), TEXT_POS_TOP, matrix);
 			matrix[6] = 0b0100100000000000;
