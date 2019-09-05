@@ -102,6 +102,7 @@ String effect = "";
 
 // Weather conditions
 String outdoorTitle = "";
+String outdoorDescription = "";
 int8_t outdoorTemperature = 0;
 uint8_t outdoorHumidity = 0;
 uint8_t outdoorCode = 0;
@@ -703,6 +704,7 @@ void loop()
 
 if(transitionActive) {
 	uint16_t updateInterval = 0xFFFF;
+	
 	switch(settings.getTransition()) {
 		case TRANSITION_SLIDE:
 		case TRANSITION_MATRIX:
@@ -759,6 +761,11 @@ if(transitionActive) {
 
 
 		// Render a new screenbuffer.
+		String weather_display;
+		
+		// ****************************************
+		// Switch between operations modes
+		// ****************************************
 		switch (mode)
 		{
     	// **** Mode Time ******
@@ -891,8 +898,6 @@ if(transitionActive) {
    
 			break;
 
-
-
     	// **** Mode Weekday ******
 		case STD_MODE_WEEKDAY:
 			renderer.setSmallText(String(sWeekday[weekday()][0]) + String(sWeekday[weekday()][1]), TEXT_POS_MIDDLE, matrix);
@@ -972,17 +977,34 @@ if(transitionActive) {
 
     	// **** Mode Temperature (External) ******
 		case STD_MODE_EXT_TEMP:
-			if (outdoorTemperature > 0)
-			{
-				matrix[1] = 0b0100000000000000;
-				matrix[2] = 0b1110000000000000;
-				matrix[3] = 0b0100000000000000;
+			#ifndef WEATHER_LONG
+				if (outdoorTemperature > 0)
+				{
+					matrix[1] = 0b0100000000000000;
+					matrix[2] = 0b1110000000000000;
+					matrix[3] = 0b0100000000000000;
+				}
+				if (outdoorTemperature < 0)
+				{
+					matrix[2] = 0b1110000000000000;
+				}
+				renderer.setSmallText(String(abs(outdoorTemperature)), TEXT_POS_BOTTOM, matrix);
+			#endif
+
+			#ifdef WEATHER_LONG
+
+			if (outdoorTemperature >= 0) {
+				weather_display =  "+" + String(abs(outdoorTemperature)) + " Grad   ";
 			}
-			if (outdoorTemperature < 0)
-			{
-				matrix[2] = 0b1110000000000000;
+			else {
+				weather_display =  "-" + String(abs(outdoorTemperature)) + " Grad   ";
 			}
-			renderer.setSmallText(String(abs(outdoorTemperature)), TEXT_POS_BOTTOM, matrix);
+			Effects::showTickerString(weather_display.c_str(), 4, eColor(settings.getColorNum()));
+			weather_display = outdoorDescription + "   " +  String(outdoorHumidity) + "% Luftfeuchtigkeit";
+			Effects::showTickerString(weather_display.c_str(), 6, eColor(settings.getColorNum()));
+
+			#endif
+
 			break;
 
 
@@ -1454,17 +1476,17 @@ void buttonOnOffPressed()
 	DEBUG_PRINTLN("On/off pressed.");
 	SYSLOG("On/off pressed.");
 
-#ifdef BUZZER
-	// Switch off alarm.
-	if (alarmOn)
-	{
-		DEBUG_PRINTLN("Alarm off.");
-		SYSLOG("Alarm off.");
-		digitalWrite(PIN_BUZZER, LOW);
-		alarmOn = false;
-		setMode(STD_MODE_TIME);
-	}
-#endif
+	#ifdef BUZZER
+		// Switch off alarm.
+		if (alarmOn)
+		{
+			DEBUG_PRINTLN("Alarm off.");
+			SYSLOG("Alarm off.");
+			digitalWrite(PIN_BUZZER, LOW);
+			alarmOn = false;
+			setMode(STD_MODE_TIME);
+		}
+	#endif
 
 	setDisplayToToggle();
 }
@@ -1477,55 +1499,55 @@ void buttonModePressed()
 {
 	titleTimeout = millis();
 
-#ifdef BUZZER
-	// Switch off alarm.
-	if (alarmOn)
-	{
-		DEBUG_PRINTLN("Alarm off.");
-		SYSLOG("Alarm off.");
-		digitalWrite(PIN_BUZZER, LOW);
-		alarmOn = false;
-		setMode(STD_MODE_TIME);
-		return;
-	}
-#endif
-
-	// Set mode.
-	setMode(mode++);
-	switch (mode)
-	{
-	case STD_MODE_COUNT:
-	case EXT_MODE_COUNT:
-		setMode(STD_MODE_TIME);
-		break;
-	case EXT_MODE_COLOR:
-		if (settings.getColorChange())
-			setMode(mode++);
-		break;
-#ifdef BUZZER
-	case STD_MODE_SET_TIMER:
-		if (timerSet)
-			setMode(mode++);
-		break;
-	case STD_MODE_TIMER:
-		if (!timerSet)
-			setMode(mode++);
-		break;
-	case STD_MODE_SET_ALARM_1:
-		if (!settings.getAlarm1())
-			setMode(mode++);
-		break;
-	case STD_MODE_SET_ALARM_2:
-		if (!settings.getAlarm2())
+	#ifdef BUZZER
+		// Switch off alarm.
+		if (alarmOn)
+		{
+			DEBUG_PRINTLN("Alarm off.");
+			SYSLOG("Alarm off.");
+			digitalWrite(PIN_BUZZER, LOW);
+			alarmOn = false;
 			setMode(STD_MODE_TIME);
-		break;
-#endif
-#ifdef PIN_LDR
-	case EXT_MODE_BRIGHTNESS:
-		if (settings.getUseLdr())
-			setMode(mode++);
-		break;
-#endif
+			return;
+		}
+	#endif
+
+		// Set mode.
+		setMode(mode++);
+		switch (mode)
+		{
+		case STD_MODE_COUNT:
+		case EXT_MODE_COUNT:
+			setMode(STD_MODE_TIME);
+			break;
+		case EXT_MODE_COLOR:
+			if (settings.getColorChange())
+				setMode(mode++);
+			break;
+	#ifdef BUZZER
+		case STD_MODE_SET_TIMER:
+			if (timerSet)
+				setMode(mode++);
+			break;
+		case STD_MODE_TIMER:
+			if (!timerSet)
+				setMode(mode++);
+			break;
+		case STD_MODE_SET_ALARM_1:
+			if (!settings.getAlarm1())
+				setMode(mode++);
+			break;
+		case STD_MODE_SET_ALARM_2:
+			if (!settings.getAlarm2())
+				setMode(STD_MODE_TIME);
+			break;
+	#endif
+	#ifdef PIN_LDR
+		case EXT_MODE_BRIGHTNESS:
+			if (settings.getUseLdr())
+				setMode(mode++);
+			break;
+	#endif
 	case EXT_MODE_TEST:
 		testColumn = 0;
 		return;
@@ -1533,9 +1555,9 @@ void buttonModePressed()
 		break;
 	}
 
-#ifdef RTC_BACKUP
-	RTC.set(now());
-#endif
+	#ifdef RTC_BACKUP
+		RTC.set(now());
+	#endif
 
 	settings.saveToEEPROM();
 }
@@ -1550,18 +1572,18 @@ void buttonSettingsPressed()
 	SYSLOG("Settings pressed.");
 	titleTimeout = millis();
 
-#ifdef BUZZER
-	// Switch off alarm.
-	if (alarmOn)
-	{
-		DEBUG_PRINTLN("Alarm off.");
-		SYSLOG("Alarm off.");
-		digitalWrite(PIN_BUZZER, LOW);
-		alarmOn = false;
-		setMode(STD_MODE_TIME);
-		return;
-	}
-#endif
+	#ifdef BUZZER
+		// Switch off alarm.
+		if (alarmOn)
+		{
+			DEBUG_PRINTLN("Alarm off.");
+			SYSLOG("Alarm off.");
+			digitalWrite(PIN_BUZZER, LOW);
+			alarmOn = false;
+			setMode(STD_MODE_TIME);
+			return;
+		}
+	#endif
 
 	if (mode < EXT_MODE_START)
 	{
@@ -2002,126 +2024,126 @@ void remoteAction(decode_results irDecodeResult)
 		setColorNum(COLOR_YELLOW);
 		break;
 
-#ifdef IR_CODE_RED_50
-	case IR_CODE_RED_50:
-		setColorNum(COLOR_RED_50);
-		break;
-#endif
-#ifdef IR_CODE_RED_25
-	case IR_CODE_RED_25:
-		setColorNum(COLOR_RED_25);
-		break;
-#endif
-#ifdef IR_CODE_ORANGE
-	case IR_CODE_ORANGE:
-		setColorNum(COLOR_ORANGE);
-		break;
-#endif
-#ifdef IR_CODE_MINT
-	case IR_CODE_MINT:
-		setColorNum(COLOR_MINTGREEN);
-		break;
-#endif
-#ifdef IR_CODE_BLUE_25
-	case IR_CODE_BLUE_25:
-		setColorNum(COLOR_BLUE_25);
-		break;
-#endif
-#ifdef IR_CODE_CYAN_25
-	case IR_CODE_CYAN_25:
-		setColorNum(COLOR_CYAN_25);
-		break;
-#endif
-#ifdef IR_CODE_BLUE_50
-	case IR_CODE_BLUE_50:
-		setColorNum(COLOR_BLUE_50);
-		break;
-#endif
-#ifdef IR_CODE_MAGENTA_25
-	case IR_CODE_MAGENTA_25:
-		setColorNum(COLOR_MAGENTA_25);
-		break;
-#endif
+	#ifdef IR_CODE_RED_50
+		case IR_CODE_RED_50:
+			setColorNum(COLOR_RED_50);
+			break;
+	#endif
+	#ifdef IR_CODE_RED_25
+		case IR_CODE_RED_25:
+			setColorNum(COLOR_RED_25);
+			break;
+	#endif
+	#ifdef IR_CODE_ORANGE
+		case IR_CODE_ORANGE:
+			setColorNum(COLOR_ORANGE);
+			break;
+	#endif
+	#ifdef IR_CODE_MINT
+		case IR_CODE_MINT:
+			setColorNum(COLOR_MINTGREEN);
+			break;
+	#endif
+	#ifdef IR_CODE_BLUE_25
+		case IR_CODE_BLUE_25:
+			setColorNum(COLOR_BLUE_25);
+			break;
+	#endif
+	#ifdef IR_CODE_CYAN_25
+		case IR_CODE_CYAN_25:
+			setColorNum(COLOR_CYAN_25);
+			break;
+	#endif
+	#ifdef IR_CODE_BLUE_50
+		case IR_CODE_BLUE_50:
+			setColorNum(COLOR_BLUE_50);
+			break;
+	#endif
+	#ifdef IR_CODE_MAGENTA_25
+		case IR_CODE_MAGENTA_25:
+			setColorNum(COLOR_MAGENTA_25);
+			break;
+	#endif
 
-#ifdef IR_CODE_MOOD
-  case IR_CODE_MOOD:
-    settings.setColorChange(COLORCHANGE_MOOD);
-    break;
-#endif
+	#ifdef IR_CODE_MOOD
+	case IR_CODE_MOOD:
+		settings.setColorChange(COLORCHANGE_MOOD);
+		break;
+	#endif
 
-#ifdef IR_CODE_5MIN
-  case IR_CODE_5MIN:
-    settings.setColorChange(COLORCHANGE_FIVE);
-    break;
-#endif
+	#ifdef IR_CODE_5MIN
+	case IR_CODE_5MIN:
+		settings.setColorChange(COLORCHANGE_FIVE);
+		break;
+	#endif
 
-#ifdef IR_CODE_1H
-  case IR_CODE_1H:
-    settings.setColorChange(COLORCHANGE_HOUR);
-    break;
-#endif
+	#ifdef IR_CODE_1H
+	case IR_CODE_1H:
+		settings.setColorChange(COLORCHANGE_HOUR);
+		break;
+	#endif
 
-#ifdef IR_CODE_24H
-  case IR_CODE_24H:
-    settings.setColorChange(COLORCHANGE_DAY);
-    break;
-#endif
+	#ifdef IR_CODE_24H
+	case IR_CODE_24H:
+		settings.setColorChange(COLORCHANGE_DAY);
+		break;
+	#endif
 
-#ifdef IR_CODE_DATE
-  case IR_CODE_DATE:
-    remoteFunctionTrigger(STD_MODE_DATE, NULL);
-    break;
-#endif
+	#ifdef IR_CODE_DATE
+	case IR_CODE_DATE:
+		remoteFunctionTrigger(STD_MODE_DATE, NULL);
+		break;
+	#endif
 
-	case IR_CODE_RGB:
-		remoteFunctionTrigger(EXT_MODE_COLORCHANGE, buttonPlusPressed);
-		break;
-	case IR_CODE_NORMAL:
-		settings.setTransition(TRANSITION_NORMAL);
-		break;
-	case IR_CODE_FADE:
-		settings.setTransition(TRANSITION_FADE);
-		transitionActive = false;
-		startTransition = true;
-		break;
-	case IR_CODE_MATRIX:
-		settings.setTransition(TRANSITION_MATRIX);
-		transitionActive = false;
-		startTransition = true;
-		break;
-	case IR_CODE_SLIDE:
-		settings.setTransition(TRANSITION_SLIDE);
-		transitionActive = false;
-		startTransition = true;
-		break;
-	case IR_CODE_SECONDS:
-		remoteFunctionTrigger(STD_MODE_SECONDS, NULL);
-		break;
-	case IR_CODE_HR_PLUS:
-		if(mode == STD_MODE_TIME){
-			setTime(hour() + 1, minute(), second(), day(), month(), year());
-		}
-		break;
-	case IR_CODE_HR_MINUS:
-		if(mode == STD_MODE_TIME){
-			setTime(hour() - 1, minute(), second(), day(), month(), year());
-		}
-		break;
-	case IR_CODE_MIN_PLUS:
-		if(mode == STD_MODE_TIME){
-			setTime(hour(), minute() + 1, 0, day(), month(), year());
-		}
-		break;
-	case IR_CODE_MIN_MINUS:
-		if(mode == STD_MODE_TIME){
-			setTime(hour(), minute() - 1, 0, day(), month(), year());
-		}
-		break;
-	case IR_CODE_LDR:
-#ifdef PIN_LDR
-		remoteFunctionTrigger(EXT_MODE_LDR, buttonPlusPressed);
-		modeTimeout = millis();
-#endif
+		case IR_CODE_RGB:
+			remoteFunctionTrigger(EXT_MODE_COLORCHANGE, buttonPlusPressed);
+			break;
+		case IR_CODE_NORMAL:
+			settings.setTransition(TRANSITION_NORMAL);
+			break;
+		case IR_CODE_FADE:
+			settings.setTransition(TRANSITION_FADE);
+			transitionActive = false;
+			startTransition = true;
+			break;
+		case IR_CODE_MATRIX:
+			settings.setTransition(TRANSITION_MATRIX);
+			transitionActive = false;
+			startTransition = true;
+			break;
+		case IR_CODE_SLIDE:
+			settings.setTransition(TRANSITION_SLIDE);
+			transitionActive = false;
+			startTransition = true;
+			break;
+		case IR_CODE_SECONDS:
+			remoteFunctionTrigger(STD_MODE_SECONDS, NULL);
+			break;
+		case IR_CODE_HR_PLUS:
+			if(mode == STD_MODE_TIME){
+				setTime(hour() + 1, minute(), second(), day(), month(), year());
+			}
+			break;
+		case IR_CODE_HR_MINUS:
+			if(mode == STD_MODE_TIME){
+				setTime(hour() - 1, minute(), second(), day(), month(), year());
+			}
+			break;
+		case IR_CODE_MIN_PLUS:
+			if(mode == STD_MODE_TIME){
+				setTime(hour(), minute() + 1, 0, day(), month(), year());
+			}
+			break;
+		case IR_CODE_MIN_MINUS:
+			if(mode == STD_MODE_TIME){
+				setTime(hour(), minute() - 1, 0, day(), month(), year());
+			}
+			break;
+		case IR_CODE_LDR:
+	#ifdef PIN_LDR
+			remoteFunctionTrigger(EXT_MODE_LDR, buttonPlusPressed);
+			modeTimeout = millis();
+	#endif
 		break;
 
 	default:
@@ -2273,17 +2295,18 @@ void getOutdoorConditions(String location) {
 		JsonObject &responseJson = jsonBuffer.parseObject(response);
 
 		if (responseJson.success()) {
-      Serial.println("Parsing JSON successful.");
-      outdoorCode = responseJson["weather"][0]["id"].as<int8_t>();
-			outdoorTitle =  responseJson["weather"][0]["main"].as<String>() + ": " + responseJson["weather"][0]["description"].as<String>();
+      		Serial.println("Parsing JSON successful.");
+      		outdoorCode = responseJson["weather"][0]["id"].as<int8_t>();
+			outdoorTitle =  responseJson["weather"][0]["main"].as<String>();
+			outdoorDescription = responseJson["weather"][0]["description"].as<String>();
 			outdoorTemperature = responseJson["main"]["temp"].as<int8_t>();
 			outdoorHumidity = responseJson["main"]["humidity"].as<uint8_t>();
-      #ifdef DEBUG
-      			Serial.println(outdoorTitle);
-      			Serial.printf("Temperature (Online): %dC\r\n", outdoorTemperature);
-      			Serial.printf("Humidity (Online): %u%%\r\n", outdoorHumidity);
-      			//Serial.println("Condition (Online): " + String(sWeatherCondition[outdoorCode]) + " (" + String(outdoorCode) + ")");
-      #endif
+			#ifdef DEBUG
+				Serial.println(outdoorTitle);
+				Serial.printf("Temperature (Online): %dC\r\n", outdoorTemperature);
+				Serial.printf("Humidity (Online): %u%%\r\n", outdoorHumidity);
+				//Serial.println("Condition (Online): " + String(sWeatherCondition[outdoorCode]) + " (" + String(outdoorCode) + ")");
+			#endif
 			return;
 		}
    else {
@@ -2663,7 +2686,7 @@ void handleRoot()
 			break;
 		}
 		//message += "\" style=\"font-size:20px;\"></span> " + String(FPSTR(sWeatherCondition[outdoorCode]));
-    message += "\" style=\"font-size:20px;\"></span> " + outdoorTitle;
+    message += "\" style=\"font-size:20px;\"></span> " + outdoorTitle + ": " + outdoorDescription;
 	}
 	message += "<span style=\"font-size:12px;\">";
 	message += "<br><br>" + String(PRODUCT_NAME) + " was <i class=\"fas fa-code\"></i> with <i class=\"fas fa-heart\"></i> by tmw-it.ch and <a href=\"http://bracci.ch\">bracci.</a>";
