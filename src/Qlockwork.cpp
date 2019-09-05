@@ -861,13 +861,6 @@ if(transitionActive) {
         Effects::showAnimatedBitmap(Effects::ANI_COUNT, (eColor) COLOR_WHITE);
       }
       else {
-		effect.replace( "ä", "ae" );
-		effect.replace( "ü", "ue" );
-		effect.replace( "ö", "oe" );
-		effect.replace( "Ä", "AE" );
-		effect.replace( "Ö", "OE" );
-		effect.replace( "Ü", "UE" );
-		effect.replace( "ß", "ss" );
         Effects::showTickerString(effect.c_str(), 5, COLOR_WHITE);
       }
       
