@@ -103,6 +103,7 @@ String effect = "";
 // Weather conditions
 String outdoorTitle = "";
 String outdoorDescription = "";
+String outdoorWeatherIcon = "";
 int8_t outdoorTemperature = 0;
 uint8_t outdoorHumidity = 0;
 uint8_t outdoorCode = 0;
@@ -2255,39 +2256,49 @@ void getUpdateInfo()
 ******************************************************************************/
 
 void getOutdoorConditions(String location) {
-#ifdef DEBUG
-	Serial.println("Sending HTTP-request for weather.");
-#endif
+	#ifdef DEBUG
+		Serial.println("Sending HTTP-request for weather.");
+	#endif
   
-  String server = "api.openweathermap.org";
-  settings.getWeatherAPIKey(weather_api_key, sizeof(weather_api_key));
-  String path = "/data/2.5/weather?zip="+location+"&units=metric&APPID="+weather_api_key;
+	String server = "api.openweathermap.org";
+
+	// Localization: see https://openweathermap.org/current#current_JSON
+	uint8_t lang = settings.getLanguage();
+	String langString = (lang <= 10) ? "de" : "en";
+	if(lang==12) langString = "es";
+	else if(lang==13) langString = "fr";
+	else if(lang==14) langString = "it";
+	else if(lang==15) langString = "nl";
+
+	settings.getWeatherAPIKey(weather_api_key, sizeof(weather_api_key));
+	String path = "/data/2.5/weather?zip="+location+"&units=metric&lang="+langString+"&APPID="+weather_api_key;
 	
 	WiFiClient wifiClient;
 	HttpClient client = HttpClient(wifiClient, server.c_str(), 80);
   
-  client.get(path);
+	client.get(path);
 	uint16_t statusCode = client.responseStatusCode();
 	
 	if (statusCode == 200) {
 		String response = client.responseBody();
 		//response = response.substring(response.indexOf('{'), response.lastIndexOf('}') + 1);
 
-    #ifdef DEBUG
-    		Serial.printf("Status: %u\r\n", statusCode);
-    		Serial.printf("Response is %u bytes.\r\n", response.length());
-    		Serial.println(response);
-    		Serial.println("Parsing JSON.");
-    #endif
+		#ifdef DEBUG
+			Serial.printf("Status: %u\r\n", statusCode);
+			Serial.printf("Response is %u bytes.\r\n", response.length());
+			Serial.println(response);
+			Serial.println("Parsing JSON.");
+		#endif
 
-    // Parse the JSON
-    // see https://arduinojson.org/v5/assistant/
-    const size_t capacity = JSON_ARRAY_SIZE(3) + 2*JSON_OBJECT_SIZE(1) + JSON_OBJECT_SIZE(2) + 3*JSON_OBJECT_SIZE(4) + JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(6) + JSON_OBJECT_SIZE(12) + 480;
+		// Parse the JSON
+		// see https://arduinojson.org/v5/assistant/
+		const size_t capacity = JSON_ARRAY_SIZE(3) + 2*JSON_OBJECT_SIZE(1) + JSON_OBJECT_SIZE(2) + 3*JSON_OBJECT_SIZE(4) + JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(6) + JSON_OBJECT_SIZE(12) + 480;
 
 		//DynamicJsonBuffer jsonBuffer;
 		StaticJsonBuffer<capacity> jsonBuffer;
 		JsonObject &responseJson = jsonBuffer.parseObject(response);
 
+		// Parse the response
 		if (responseJson.success()) {
       		Serial.println("Parsing JSON successful.");
       		outdoorCode = responseJson["weather"][0]["id"].as<int8_t>();
@@ -2295,6 +2306,7 @@ void getOutdoorConditions(String location) {
 			outdoorDescription = responseJson["weather"][0]["description"].as<String>();
 			outdoorTemperature = responseJson["main"]["temp"].as<int8_t>();
 			outdoorHumidity = responseJson["main"]["humidity"].as<uint8_t>();
+			outdoorWeatherIcon =  responseJson["weather"][0]["icon"].as<String>();
 			#ifdef DEBUG
 				Serial.println(outdoorTitle);
 				Serial.printf("Temperature (Online): %dC\r\n", outdoorTemperature);
@@ -2303,21 +2315,20 @@ void getOutdoorConditions(String location) {
 			#endif
 			return;
 		}
-   else {
-    #ifdef DEBUG
-      Serial.println("Json parsing (outdoor temperature) failed!");
-    #endif
-   }
+		else {
+			#ifdef DEBUG
+			Serial.println("Json parsing (outdoor temperature) failed!");
+			#endif
+		}
 	}
 	else {
-    #ifdef DEBUG
-	    Serial.printf("Status: %u\r\n", statusCode);
-      Serial.println("API Key: " + String(weather_api_key));
-      Serial.println("URL: " + server + path);
-    #endif
-    outdoorTitle = "Request failed.";
+		#ifdef DEBUG
+			Serial.printf("Status: %u\r\n", statusCode);
+		Serial.println("API Key: " + String(weather_api_key));
+		Serial.println("URL: " + server + path);
+		#endif
+		outdoorTitle = "Request failed.";
 	}
-    
 }
 
 #ifdef RTC_BACKUP
@@ -2624,67 +2635,44 @@ void handleRoot()
 		message += "<br><br><i class = \"fas fa-tree\" style=\"font-size:20px;\"></i>";
 		message += "<br><i class = \"fas fa-thermometer\" style=\"font-size:20px;\"></i> " + String(outdoorTemperature) + "&deg;C / " + String(outdoorTemperature * 9.0 / 5.0 + 32.0) + "&deg;F";
 		message += "<br><i class = \"fas fa-tint\" style=\"font-size:20px;\"></i> " + String(outdoorHumidity) + "%RH";
-		message += "<br><span class = \"";
-		switch (outdoorCode)
+		/* switch (outdoorCode/100)
 		{
-		case 0:  // tornado
-		case 1:  // tropical storm
-		case 2:  // hurricane
-			message += "fas fa-frown-o";
-			break;
-		case 3:  // severe thunderstorms
-		case 4:  // thunderstorms
-		case 37: // isolated thunderstorms
-		case 38: // scattered thunderstorms
-		case 39: // scattered thunderstorms
-		case 45: // thundershowers
-		case 47: // isolated thundershowers
-			message += "fas fa-flash";
-			break;
-		case 5:  // mixed rain and snow
-		case 6:  // mixed rain and sleet
-		case 7:  // mixed snow and sleet
-		case 8:  // freezing drizzle
-		case 9:  // drizzle
-		case 10: // freezing rain
-		case 11: // showers
-		case 12: // showers
-			message += "fas fa-umbrella";
-			break;
-		case 13: // snow flurries
-		case 14: // light snow showers
-		case 15: // blowing snow
-		case 16: // snow
-		case 17: // hail
-		case 41: // heavy snow
-		case 42: // scattered snow showers
-		case 43: // heavy snow
-		case 46: // snow showers
-			message += "fas fa-snowflake-o";
-			break;
-		case 23: // blustery
-		case 24: // windy
-			message += "fas fa-flag";
-			break;
-		case 31: // clear (night)
-		case 33: // fair (night)
-			message += "fas fa-moon-o";
-			break;
-		case 32: // sunny
-		case 34: // fair (day)
-		case 36: // hot
-			message += "fas fa-sun-o";
-			break;
-		default:
-			message += "fas fa-cloud";
-			break;
-		}
-		//message += "\" style=\"font-size:20px;\"></span> " + String(FPSTR(sWeatherCondition[outdoorCode]));
-    message += "\" style=\"font-size:20px;\"></span> " + outdoorTitle + ": " + outdoorDescription;
+			case 2:  // thunderstorm
+				message += "fas fa-frown-o";
+				break;
+			case 3:  // drizzle
+				message += "fas fa-frown-o";
+				break;
+			case 5: //rain
+				message += "fas fa-frown-o";
+				break;
+			case 6: //snow
+				message += "fas fa-frown-o";
+				break;
+			case 7: //atmosphere
+				message += "fas fa-frown-o";
+				break;
+			case 8: //clear
+				if(outdoorCode%800==0) // clear sky
+					message += "fas fa-frown-o";
+				else if(outdoorCode%800==1) // clear sky
+					message += "fas fa-frown-o";
+				else if(outdoorCode%800==2) // clear sky
+					message += "fas fa-frown-o";
+				else if(outdoorCode%800==3) // clear sky
+					message += "fas fa-frown-o";
+				else if(outdoorCode%800==4) // clear sky
+					message += "fas fa-frown-o";
+				break;
+			default:
+				message += "fas fa-cloud";
+				break;
+		} */
+	message += "<br><img src=\"http://openweathermap.org/img/wn/"+outdoorWeatherIcon+".png\"><span style=\"line-height: 50px; vertical-align:top\">" + outdoorDescription + "</span>";
 	}
 	message += "<span style=\"font-size:12px;\">";
-	message += "<br><br>" + String(PRODUCT_NAME) + " was <i class=\"fas fa-code\"></i> with <i class=\"fas fa-heart\"></i> by tmw-it.ch and <a href=\"http://bracci.ch\">bracci.</a>";
-	message += "<br>Firmware: " + String(FIRMWARE_VERSION);
+	message += "<br><br>" + String(PRODUCT_NAME) + " was <i class=\"fas fa-code\"></i> with <i class=\"fas fa-heart\"></i> by tmw-it.ch, <a href=\"http://bracci.ch\">bracci.</a> and <a href=\"http://clemens.schuwerk.info\" target=\"blank\">C.Schuwerk</a> ";
+	//message += "<br>Firmware: " + String(FIRMWARE_VERSION);
 #if defined(UPDATE_INFO_STABLE) || defined(UPDATE_INFO_UNSTABLE)
 	if (updateInfo > String(FIRMWARE_VERSION)) message += "<br><span style=\"color:red;\">Firmwareupdate available! (" + updateInfo + ")</span>";
 #endif
