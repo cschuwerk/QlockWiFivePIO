@@ -27,40 +27,50 @@ void Effects::showTickerString(const char* str2disp, byte tickerSpeed, eColor co
 	byte strLength = strlen(str2disp);
 	unsigned int bufLen;
 	int16_t actChar;
-	int16_t lastChar;
 	byte offsetV = 2;
 	bool finish = false;
 	unsigned int i = 0;
 	unsigned int temp_shift = 0;
+	char lettersDisplay[8];
+	char letterDisplayLast;
 
 	while (!finish) {
 		renderer.clearScreenBuffer(matrix);
-		lastChar = 'W';
 		unsigned int shift = 0; // Schiebekorrektur aufgrund variierender Buchstabenbreite
 		for (byte k = 0; k < strLength; k++) {
 			actChar = str2disp[k];
-			if(actChar>127) { //single-byte UTF-8 encoding
+			// Standard letter
+			if(actChar >= '!' && actChar <= '~') {
+				actChar = str2disp[k];
+				std::copy(lettersBig[actChar - '!'],lettersBig[actChar - '!']+8,lettersDisplay);
+			}
+			// Extended UTF-8 letter
+			else if(actChar>127) { //single-byte UTF-8 encoding
 			 	// assume a two-byte UTF-8 encoding: not perfect, because there are also 4 byte encodings
 				k+=1;
 				actChar = (int)(str2disp[k]&0x3F) + (( (int)(str2disp[k-1]&0x1f))<<6);
+
+				// Skip this letter if it is an unknown one)
+				if(lettersBigUTF8.find(actChar) ==  lettersBigUTF8.end()) { 
+					continue; 
+				} 
+				std::copy(lettersBigUTF8.at(actChar).begin(),lettersBigUTF8.at(actChar).end(),lettersDisplay);
 			}
 
-			if(lettersBig.find(actChar) ==  lettersBig.end()) { continue; } // Skip this letter if it is an unknown one
-		
 			if (actChar == ' ') {
 				shift += 4;  //bei einem Space eine Lücke von:
 			} else {
-				shift -= lettersBig.at(lastChar).at(7);
+				shift -= letterDisplayLast; //lettersBig.at(lastChar).at(7);
 				for (byte j = 0; j < 7; j++) {
 					temp_shift = (1 - shift + i);
 					if (temp_shift < 16) {
-						matrix[offsetV + j] |= (lettersBig.at(actChar).at(j) << temp_shift) & 0b1111111111100000;
+						matrix[offsetV + j] |= (lettersDisplay[j] << temp_shift) & 0b1111111111100000;
 					}
 				}
 				if (k < (strLength - 1)) {
 					shift += 6; // Max. Buchstabenbreite + ein Pixel Lücke
 				}
-				lastChar = actChar;
+				letterDisplayLast = lettersDisplay[7];
 			}
 		}
 		writeToBuffer(matrix, 3 * (10 - tickerSpeed), color);
