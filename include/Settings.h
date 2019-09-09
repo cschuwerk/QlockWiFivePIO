@@ -140,7 +140,7 @@ private:
 		uint8_t eventDisplayRate;
 		event_t events[NUM_EVTS];
 		char location[LEN_LOC_STR];
-    char weather_api_key[32];
+    	char weather_api_key[LEN_API_KEY];
 	} mySettings;
 
 	void loadFromEEPROM();

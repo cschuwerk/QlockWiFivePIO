@@ -96,7 +96,7 @@ Hardware settings.
 //--------------
 #define BUTTON_TRESHOLD 300
 
-#define BUZZER
+//#define BUZZER
 //--------------
 #define BUZZTIME_ALARM_1 60
 #define BUZZTIME_ALARM_2 60

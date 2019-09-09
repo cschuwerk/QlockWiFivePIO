@@ -2990,11 +2990,12 @@ void handleButtonSettings()
 	message += "Language:";
 	message += "</td><td>";
 	message += "<select name=\"la\">";
+	uint8_t lang = settings.getLanguage();
 	for (uint8_t i = 0; i <= LANGUAGE_COUNT; i++){
-	message += "<option value=\"" + String(i) +"\"";
-	if (settings.getLanguage() == i) message += " selected";
-	message += ">";
-	message += String(FPSTR(sLanguageStr[i])) + "</option>";
+		message += "<option value=\""+String(i)+"\"";
+		if (lang == i) message += " selected";
+		message +=">"+String(FPSTR(sLanguageStr[i]))+"</option>";
+		//message +=">"+String(i)+"</option>";
 	}
 	message += "</select>";
 	message += "</td></tr>";
@@ -3009,9 +3010,10 @@ void handleButtonSettings()
 		if (layout == i) message += " selected";
 		message += ">";
 		message += String(FPSTR(sLayoutStr[i])) + "</option>";
+		//message += String(i) + "</option>"; //
 	}
 	message += "</select>";
-  message += " <i>(reboot needed)</i>";
+  	message += " <i>(reboot needed)</i>";
 	message += "</td></tr>";
 	// ------------------------------------------------------------------------
 	message += "<tr><td>";
@@ -3019,17 +3021,18 @@ void handleButtonSettings()
 	message += "</td><td>";
 	message += "<input type=\"text\" name=\"loc\" value=\""; 
 	settings.getLocation(location, sizeof(location));
-	message += String(location) + "\" pattern=\"[\\x20-\\x7e]{0," + String(LEN_LOC_STR-1) + "}\" placeholder=\"Enter Location ...\">";
+	message += String(location) + "\" placeholder=\"Enter Location ...\">";
 	message += "</td></tr>";
 	// ------------------------------------------------------------------------
-  message += "<tr><td>";
-  message += "OpenWeatherMap API Key:";
-  message += "</td><td>";
-  message += "<input type=\"text\" name=\"api_key\" value=\"";
-  settings.getWeatherAPIKey(weather_api_key, sizeof(weather_api_key));
-  message += String(weather_api_key) + "\" placeholder=\"Enter API key ...\">";
-  message += "</td></tr>";
-  // ------------------------------------------------------------------------
+	message += "<tr><td>";
+	message += "OpenWeatherMap API Key:";
+	message += "</td><td>";
+	message += "<input type=\"text\" name=\"api_key\" value=\"";
+	settings.getWeatherAPIKey(weather_api_key, LEN_API_KEY);
+	message += String(weather_api_key) + "\" placeholder=\"Enter API key ...\">";
+	//message += String(weather_api_key);
+	message += "</td></tr>";
+	// ------------------------------------------------------------------------
 	message += "<tr><td>";
 	message += "Set date/time:";
 	message += "</td><td>";
