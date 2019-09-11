@@ -34,6 +34,6 @@ private:
 	uint16_t _ldrHysteresis;
 	uint8_t _constrainMin;
 	uint8_t _constrainMax;
-};
+	};
 
 #endif

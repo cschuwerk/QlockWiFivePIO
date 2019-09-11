@@ -79,7 +79,7 @@ Software settings.
 /******************************************************************************
 Hardware settings.
 ******************************************************************************/
-//#define SENSOR_DHT22
+#define SENSOR_DHT22
 //--------------------
 #define DHT_TEMPERATURE_OFFSET 0.3
 #define DHT_HUMIDITY_OFFSET 0.4
@@ -89,8 +89,8 @@ Hardware settings.
 #define RTC_TEMPERATURE_OFFSET -0.25
 
 //-----------
-#define LDR_HYSTERESIS 50
-#define MIN_BRIGHTNESS 15
+#define LDR_HYSTERESIS 5
+#define MIN_BRIGHTNESS 30
 #define MAX_BRIGHTNESS 255
 
 //--------------
@@ -172,15 +172,16 @@ Default values for EEPROM.
 Misc.
 ******************************************************************************/
 
-#define DEBUG
+//#define DEBUG
 //#define DEBUG_MATRIX
 //#define DEBUG_FPS
+//#define DEBUG_WEB
 
 //#define SYSLOG_SERVER "192.168.0.1"
 //#define SYSLOG_PORT 514
 
-#define UPDATE_INFOSERVER "bracci.ch"
-#define UPDATE_INFOFILE "/qlockwifive/updateinfo.json"
+//#define UPDATE_INFOSERVER "bracci.ch"
+//#define UPDATE_INFOFILE "/qlockwifive/updateinfo.json"
 
 #define SERIAL_SPEED    115200
 
@@ -216,9 +217,9 @@ Misc.
 #define LDR_IS_INVERSE false
 
 #define PIN_IR_RECEIVER D6
-#define PIN_LED         D4 //D4
+//#define PIN_LED         D4 //D4
 #define PIN_BUZZER      D6 //D8
-#define PIN_DHT22       D3
+#define PIN_DHT22       D7
 #define PIN_LEDS_CLOCK  D5
 #define PIN_LEDS_DATA   D8 //D6
 #define PIN_LDR         A0

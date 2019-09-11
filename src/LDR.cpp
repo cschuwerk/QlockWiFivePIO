@@ -52,9 +52,7 @@ byte LDR::value() {
 		rawVal = (1023 - analogRead(_pin));
 	}
 
-	if ((rawVal != _lastValue)
-			&& ((rawVal == 0) || (rawVal == 1023)
-					|| (rawVal > (_lastValue + _ldrHysteresis) || (rawVal < _lastValue - _ldrHysteresis)))) {
+	if ((rawVal != _lastValue) && ((rawVal == 0) || (rawVal == 1023) || (rawVal > (_lastValue + _ldrHysteresis) || (rawVal < _lastValue - _ldrHysteresis)))) {
 		val = rawVal;
 		_lastValue = val;
 		if (_autoScale) {
@@ -72,8 +70,8 @@ byte LDR::value() {
 			mapVal = map(val, _min, _max, 0, 255);
 		}
 		mapVal = constrain(mapVal, _constrainMin, _constrainMax);
-		DEBUG_PRINT(F("rawVal: ")); DEBUG_PRINT(rawVal); DEBUG_PRINT(F(" val: ")); DEBUG_PRINT(val); DEBUG_PRINT(F(" _min: ")); DEBUG_PRINT(_min); DEBUG_PRINT(F(" _max: ")); DEBUG_PRINT(_max); DEBUG_PRINT(F(" mapValue: ")); DEBUG_PRINTLN(mapVal);
+		//DEBUG_PRINT(F("rawVal: ")); DEBUG_PRINT(rawVal); DEBUG_PRINT(F(" val: ")); DEBUG_PRINT(val); DEBUG_PRINT(F(" _min: ")); DEBUG_PRINT(_min); DEBUG_PRINT(F(" _max: ")); DEBUG_PRINT(_max); DEBUG_PRINT(F(" mapValue: ")); DEBUG_PRINTLN(mapVal);
 		_outputValue = mapVal;
 	}
-	return _outputValue;
+	return _outputValue; 
 }

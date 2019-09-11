@@ -17,22 +17,29 @@ An advanced firmware for a DIY "word-clock".
 #include <ESP8266mDNS.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266WiFi.h>
+#ifdef IR_REMOTE
 #include <IRremoteESP8266.h>
 #include <IRrecv.h>
 #include <IRutils.h>
+#endif
 #include <Syslog.h>
 #include <TimeLib.h>
 #include <Timezone.h>
 #include <WiFiManager.h>
 #include "Colors.h"
 #include "Configuration.h"
-#include "Debug.h"
 #include "Event.h"
 #include "Effects.h"
 #include "Languages.h"
+#ifdef LED_LIBRARY_FASTLED
 #include "LedDriver_FastLED.h"
+#endif
+#ifdef LED_LIBRARY_NEOPIXEL
 #include "LedDriver_NeoPixel.h"
+#endif
+#ifdef LED_LIBRARY_LPD8806RGBW
 #include "LedDriver_LPD8806RGBW.h"
+#endif
 #include "Modes.h"
 #include "Renderer.h"
 #include "Settings.h"
@@ -46,6 +53,7 @@ An advanced firmware for a DIY "word-clock".
 #ifdef PIN_LDR
 #include "LDR.h"
 #endif
+#include "Debug.h"
 
 /******************************************************************************
 Init.
@@ -125,7 +133,6 @@ uint8_t alarmOn = 0;
 // LDR
 #ifdef PIN_LDR
 LDR ldr(PIN_LDR, LDR_IS_INVERSE, MIN_BRIGHTNESS, MAX_BRIGHTNESS, true, LDR_HYSTERESIS);
-uint8_t ratedBrightness = 0;
 uint32_t lastLdrCheck = 0;
 #endif
 
@@ -219,8 +226,10 @@ void getOutdoorConditions(String location);
 void getRoomConditions();
 
 // IR
+#ifdef IR_REMOTE
 void remoteAction(decode_results irDecodeResult);
 void remoteFunctionTrigger(eMode functionMode, void (*func)());
+#endif
 
 /******************************************************************************
 Setup().
@@ -271,6 +280,10 @@ void setup()
 	pinMode(PIN_LDR, INPUT);
 	randomSeed(analogRead(PIN_LDR));
 #endif
+#ifdef MOTION_SENSOR
+	pinMode(PIN_MOTION, INPUT);
+#endif
+
 
 #ifdef SELFTEST
 	renderer.setAllScreenBuffer(matrix);
@@ -2186,21 +2199,22 @@ Set brightness from LDR.
 void setBrightnessFromLdr()
 {
 	if (settings.getUseLdr()) {
+		
 		if (millis() < lastLdrCheck) {
 			// overflow...
 			lastLdrCheck = millis();
 		}
 		if (millis() > (lastLdrCheck + 100)) {
 			// get rated brightness from LDR
-			uint8_t ratedBrightness = ldr.value();
+			uint8 ratedBrightness = ldr.value();
 			// set brightness to rated brightness
 			lastLdrCheck = millis();
 			if (brightness < ratedBrightness) brightness++;
 			if (brightness > ratedBrightness) brightness--;
 			if (brightness != ratedBrightness) {
 				screenBufferNeedsUpdate = true;
-				//DEBUG_PRINTLN("Brightness: " + String(brightness) + ", rated brightness: " + String(ratedBrightness));
 			}
+			DEBUG_PRINTLN("Brightness: " + String(brightness) + ", rated brightness: " + String(ratedBrightness));
 		}
 	}
 }

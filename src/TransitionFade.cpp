@@ -13,7 +13,7 @@
 
 #include "TransitionFade.h"
 #include "Debug.h"
-#define DEBUG
+//#define DEBUG
 
 TransitionFade::TransitionFade(LedDriverBase* ledDriver) :
 		TransitionBase(ledDriver) {
