@@ -32,7 +32,7 @@ void Effects::showTickerString(const char* str2disp, byte tickerSpeed, eColor co
 	unsigned int i = 0;
 	unsigned int temp_shift = 0;
 	char lettersDisplay[8];
-	char letterDisplayLast;
+	char letterDisplayLast = 0;
 
 	while (!finish) {
 		renderer.clearScreenBuffer(matrix);
